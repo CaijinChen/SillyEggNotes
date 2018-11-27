@@ -552,9 +552,7 @@
 
 ## 6.2[控制台API](https://wangdoc.com/javascript/features/console.html#%E6%8E%A7%E5%88%B6%E5%8F%B0%E5%91%BD%E4%BB%A4%E8%A1%8C-api)
 
-## 7.1 标准库
-
-#### Object对象
+## 7.1Object对象
 
 ###### JavaScript 的所有其他对象都继承自Object对象，即那些对象都是Object的实例
 
@@ -638,3 +636,95 @@
 	person.toLocaleString() // 白求恩
 
 ###### Object.prototype.hasOwnProperty方法接受一个字符串作为参数，返回一个布尔值，表示该实例对象自身是否具有该属性,不包含继承的属性
+
+#### 属性描述对象(包含6个元属性)
+
+- value，value是该属性的属性值，默认为undefined。
+- writable，writable是一个布尔值，表示属性值（value）是否可改变（即是否可写），默认为true。
+- enumerable，enumerable是一个布尔值，表示该属性是否可遍历，默认为true。如果设为false，会使得某些操作（比如for...in循环、Object.keys()）跳过该属性。
+- configurable，configurable是一个布尔值，表示可配置性，默认为true。如果设为false，将阻止某些操作改写该属性，比如无法删除该属性，也不得改变该属性的属性描述对象（value属性除外）。也就是说，configurable属性控制了属性描述对象的可写性。
+- get，get是一个函数，表示该属性的取值函数（getter），默认为undefined。
+- set，set是一个函数，表示该属性的存值函数（setter），默认为undefined。
+
+###### Object.getOwnPropertyDescriptor()方法可以获取属性描述对象。它的第一个参数是目标对象，第二个参数是一个字符串，对应目标对象的某个属性名（只能用于对象自身的属性，继承无效）
+
+###### Object.getOwnPropertyNames方法返回一个数组，成员是参数对象自身的全部属性的属性名，不管该属性是否可遍历（Object.prototype也是一个对象，所有实例对象都会继承它，它自身的属性都是不可遍历的）
+
+###### Object.defineProperty()方法允许通过属性描述对象，定义或修改一个属性，然后返回修改后的对象，如果属性已经存在，Object.defineProperty()方法相当于更新该属性的属性描述对象；Object.defineProperties()可以同时修改一个对象的多个属性
+
+    var obj = Object.defineProperties({}, {
+      p1: { value: 123, enumerable: true },
+      p2: { value: 'abc', enumerable: true },
+      p3: { get: function () { return this.p1 + this.p2 },
+    enumerable:true,
+    configurable:true
+      }
+    });
+    
+    obj.p1 // 123
+    obj.p2 // "abc"
+    obj.p3 // "123abc"
+
+**注意，一旦定义了取值函数get（或存值函数set），就不能将writable属性设为true，或者同时定义value属性**
+
+**Object.defineProperty()和Object.defineProperties()参数里面的属性描述对象，writable、configurable、enumerable这三个属性的默认值都为false**
+
+###### 实例对象的propertyIsEnumerable()方法返回一个布尔值，用来判断某个属性是否可遍历。注意，这个方法只能用于判断对象自身的属性，对于继承的属性一律返回false
+
+###### 可遍历与for..in的使用有关，只有可遍历的属性，才会被for...in循环遍历，同时像toString这一类实例对象继承的原生属性，都是不可遍历的，这样就保证了for...in循环的可用性
+
+###### JSON.stringify方法会排除enumerable为false的属性
+
+###### configurable(可配置性）返回一个布尔值，决定了是否可以修改属性描述对象。也就是说，configurable为false时，writable、enumerable和configurable都不能被修改了（writable只有在false改为true会报错，true改为false是允许的；另外，value在writable为true时仍可以被修改，准确点说，只要writable和configurable有一个为true，就允许改动）
+
+###### 访问属性get 和 set
+
+#### 对象的拷贝
+
+	var extend = function (to, from) {
+	for (var property in from) {
+	if (!from.hasOwnProperty(property)) continue;
+	Object.defineProperty(
+	  to,
+	  property,
+	  Object.getOwnPropertyDescriptor(from, property)
+	);
+	}
+	
+	return to;
+	}
+	
+	extend({}, { get a(){ return 1 } })
+
+#### 有时需要冻结对象的读写状态，防止对象被改变。JavaScript 提供了三种冻结方法，最弱的一种是Object.preventExtensions，其次是Object.seal，最强的是Object.freeze【控制对象状态】
+
+- Object.preventExtensions方法可以使得一个对象无法再添加新的属性
+- Object.isExtensible方法用于检查一个对象是否使用了Object.preventExtensions方法
+- Object.seal方法使得一个对象既无法添加新属性，也无法删除旧属性（Object.seal实质是把属性描述对象的configurable属性设为false，因此属性描述对象不再能改变了）
+- Object.isSealed方法用于检查一个对象是否使用了Object.seal方法
+- Object.freeze方法可以使得一个对象无法添加新属性、无法删除旧属性、也无法改变属性的值，使得这个对象实际上变成了常量
+- Object.isFrozen方法用于检查一个对象是否使用了Object.freeze方法
+
+**注意：可以通过改变原型对象，来为对象增加属性**
+
+	var obj = new Object();
+	Object.preventExtensions(obj);
+	
+	var proto = Object.getPrototypeOf(obj);
+	proto.t = 'hello';
+	obj.t
+	// hello
+
+	//一种解决方案是，把obj的原型也冻结住
+	var obj = new Object();
+	Object.preventExtensions(obj);
+	
+	var proto = Object.getPrototypeOf(obj);
+	Object.preventExtensions(proto);
+	
+	proto.t = 'hello';
+	obj.t // undefined
+
+**另外，如果冻结的属性是一个对象，那么实际上冻结的时属性的指向，仍然可以修改属性对应的对象的属性**
+
+## 7.2Array对象
