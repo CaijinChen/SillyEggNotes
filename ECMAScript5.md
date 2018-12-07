@@ -1,5 +1,6 @@
-# **ECMAScript 5.1知识点总结**
+# **ECMAScript 5.1知识点总结 <一>**
 ---
+## 0.0基础知识点总结参考自[网道](https://wangdoc.com/)
 ## 1.1变量提升
 
 ###### JavaScript 引擎的工作方式是，先解析代码，获取所有被声明的变量，然后再一行一行地运行。这造成的结果，就是所有的变量的声明语句，都会被提升到代码的头部，这就叫做变量提升
@@ -17,7 +18,7 @@
 
 ## 1.3标签
 
-###### JavaScript 语言允许，语句的前面有标签（label），相当于定位符，用于跳转到程序的任意位置，标签的格式如下
+###### JavaScript 语言允许语句的前面有标签（label），相当于定位符，用于跳转到程序的任意位置，标签的格式如下
 
 	label:
 		  语句
@@ -728,3 +729,399 @@
 **另外，如果冻结的属性是一个对象，那么实际上冻结的时属性的指向，仍然可以修改属性对应的对象的属性**
 
 ## 7.2Array对象
+
+###### Array是js原生对象，同时也是一个构造函数
+
+###### Array.isArray方法返回一个布尔值，表示参数是否为数组
+
+###### valueOf()，toString()
+
+    var arr = [1, 2, 3];
+    arr.valueOf() // [1, 2, 3]
+    arr.toString() // "1,2,3"
+    var arr = [1, 2, 3, [4, 5, 6]];
+    arr.toString() // "1,2,3,4,5,6"
+
+###### 原生方法
+
+|方法|用法|
+|:-:|:-|
+|push()|在数组的末端添加一个或多个元素，并返回添加新元素后的数组长度|
+|pop()|删除数组的最后一个元素，并返回该元素|
+|shift()|删除数组的第一个元素，并返回该元素|
+|unshift()|在数组的第一个位置添加元素，并返回添加新元素后的数组长度|
+|join()|以指定参数作为分隔符，将所有数组成员连接为一个字符串返回|
+|concat()|数组合并，返回新数组|
+|recerse()|颠倒排列数组元素，返回改变后的数组|
+|slice()|提取目标数组的一部分，返回一个新数组|
+|splice()|删除原数组的一部分成员，并可以在删除的位置添加新的数组成员，返回值是被删除的元素|
+|sort()|对数组成员进行排序，默认是按照字典顺序排序|
+|map()|将数组的所有成员依次传入参数函数，然后把每一次的执行结果组成一个新数组返回|
+|forEach()|与map方法很相似但不返回值，只用来操作数据|
+|filter()|过滤数组成员，满足条件的成员组成一个新数组返回|
+|some()|表示判断数组成员是否符合某种条件,只要一个成员的返回值是true，则整个some方法的返回值就是true|
+|every()|同some(),不过是所有成员的返回值都是true，整个every方法才返回true|
+|reduce()|从左到右依次处理数组的每个成员，最终累计为一个值|
+|reduceRight()|从右到左依次处理数组的每个成员，最终累计为一个值|
+|indexOf()|返回给定元素在数组中第一次出现的位置，如果没有出现则返回-1|
+|lastIndexOf()|返回给定元素在数组中最后一次出现的位置，如果没有出现则返回-1|
+
+## 7.3包装对象
+
+#### “包装对象”，就是分别与数值、字符串、布尔值相对应的Number、String、Boolean三个原生对象，将原始类型的值通过原生对象“包装”成对象。包装对象的最大目的，首先是使得 JavaScript 的对象涵盖所有的值，其次使得原始类型的值可以方便地调用某些方法
+
+	//Number、String和Boolean如果不作为构造函数调用（即调用时不加new），常常用于将任意类型的值转为数值、字符串和布尔值
+	var v1 = new Number(123);
+	var v2 = new String('abc');
+	var v3 = new Boolean(true);
+	typeof v1 // "object"
+	typeof v2 // "object"
+	typeof v3 // "object"
+	
+	v1 === 123 // false
+	v2 === 'abc' // false
+	v3 === true // false
+
+###### 总结一下，这三个对象作为构造函数使用（带有new）时，可以将原始类型的值转为对象；作为普通函数使用时（不带有new），可以将任意类型的值，转为原始类型的值
+
+###### 实例方法
+
+|方法|用法|
+|:-|:-|
+|valueOf()|返回包装对象实例对应的原始类型的值|
+|toString()|返回对应的字符串形式|
+
+#### 原始类型与实例对象的自动转换
+
+###### 原始类型的值，可以自动当作包装对象调用，即调用包装对象的属性和方法。这时，JavaScript 引擎会自动将原始类型的值转为包装对象实例，在使用后立刻销毁实例
+
+	//比如，字符串可以调用length属性，返回字符串的长度
+	'abc'.length // 3
+
+###### 除了原生的实例方法，包装对象还可以自定义方法和属性，供原始类型的值直接调用
+
+	String.prototype.double = function () {
+	  return this.valueOf() + this.valueOf();
+	};
+	
+	'abc'.double()
+	// abcabc
+	
+	Number.prototype.double = function () {
+	  return this.valueOf() + this.valueOf();
+	};
+	
+	(123).double()
+	// 246
+
+	//为字串添加属性
+	var l = 'cxcxcxc'
+	String.prototype.arg = 13
+
+	l.arg
+	//13
+
+***这种自定义方法和属性的机制，只能定义在包装对象的原型上，如果直接对原始类型的变量添加属性，则无效***
+
+## 7.4Boolean对象、Number对象
+
+###### Boolean()（不加new）可作为工具函数将其他数据类型转化为boolean类型（原始值类型）
+
+###### Number静态属性
+
+- Number.POSITIVE_INFINITY：正的无限，指向Infinity
+- Number.NEGATIVE_INFINITY：负的无限，指向-Infinity
+- Number.NaN：表示非数值，指向NaN
+- Number.MIN_VALUE：表示最小的正数（即最接近0的正数，在64位浮点数体系中为5e-324），相应的，最接近0的负数为-Number.MIN_VALUE
+- Number.MAX_SAFE_INTEGER：表示能够精确表示的最大整数，即9007199254740991
+- Number.MIN_SAFE_INTEGER：表示能够精确表示的最小整数，即-9007199254740991
+
+###### Number实例方法
+
+- Number.prototype.toString()**避免js引擎将‘.’解析成小数点**
+	-   (10).toString(2) // "1010"
+	- 	10..toString(2) // "1010"
+	- 	10 .toString(2) // "1010"
+	- 	10.0.toString(2) // "1010"
+	- 	10`['toString'](2)` // "1010"
+- Number.prototype.toFixed()方法先将一个数转为指定位数的小数，然后返回这个小数对应的字符串**参数为小数位数，有效范围为0到20，超出这个范围将抛出 RangeError 错误**
+- Number.prototype.toExponential()方法用于将一个数转为科学计数法形式**参数是小数点后有效数字的位数，范围为0到20，超出这个范围，会抛出一个 RangeError 错误**
+- Number.prototype.toPrecision()方法用于将一个数转为指定位数的有效数字**参数为有效数字的位数，范围是1到21，超出这个范围会抛出 RangeError 错误**
+
+## 7.5String对象
+
+###### 字符串对象是一个类似数组的对象（很像数组，但不是数组）
+
+###### String静态方法
+
+> String.fromCharCode()的参数是一个或多个数值，代表 Unicode 码点，返回值是这些码点组成的字符串，如果发现参数值大于0xFFFF，就会忽略多出的位。这种现象的根本原因在于，码点大于0xFFFF的字符占用四个字节，而 JavaScript 默认支持两个字节的字符。这种情况下，必须把0x20BB7拆成两个字符表示（UTF-16）
+
+    String.fromCharCode() // ""
+    String.fromCharCode(97) // "a"
+    String.fromCharCode(104, 101, 108, 108, 111)
+    // "hello"
+
+> String.prototype.length()返回字符串的长度
+
+###### String实例方法
+
+> String.prototype.charAt()方法返回指定位置的字符，参数是从0开始编号的位置
+#
+> String.prototype.charCodeAt()方法返回字符串指定位置的 Unicode 码点（十进制表示），相当于String.fromCharCode()的逆操作。*charCodeAt方法返回的 Unicode 码点不会大于65536（0xFFFF），也就是说，只返回两个字节的字符的码点。如果遇到码点大于 65536 的字符（四个字节的字符），必需连续使用两次charCodeAt，不仅读入charCodeAt(i)，还要读入charCodeAt(i+1)，将两个值放在一起，才能得到准确的字符*
+#
+> String.prototype.concat()用于连接两个字符串，返回一个新字符串，不改变原字符串
+#
+> String.prototype.slice()方法用于从原字符串取出子字符串并返回，不改变原字符串
+#
+> String.prototype.substring()方法用于从原字符串取出子字符串并返回，不改变原字符串，跟slice方法很相像
+#
+> String.prototype.substr()方法用于从原字符串取出子字符串并返回，不改变原字符串，跟slice和substring方法的作用相同**第一个参数是子字符串的开始位置（从0开始计算），第二个参数是子字符串的长度**
+#
+> String.prototype.indexOf(),String.prototype.lastIndexOf(),String.prototype.trim(),String.prototype.toLowerCase()，String.prototype.toUpperCase()
+#
+> String.prototype.match()方法用于确定原字符串是否匹配某个子字符串，返回一个数组，成员为匹配的第一个字符串。如果没有找到匹配，则返回null。**返回的数组还有index属性和input属性，分别表示匹配字符串开始的位置和原始字符串**
+#
+> String.prototype.search()用法基本等同于match，但是返回值为匹配的第一个位置。如果没有找到匹配，则返回-1
+#
+> String.prototype.replace()方法用于替换匹配的子字符串，一般情况下只替换第一个匹配（除非使用带有g修饰符的正则表达式）
+# 
+> String.prototype.split()方法按照给定规则分割字符串，返回一个由分割出来的子字符串组成的数组
+#
+> String.prototype.localeCompare()方法用于比较两个字符串。它返回一个整数，如果小于0，表示第一个字符串小于第二个字符串；如果等于0，表示两者相等；如果大于0，表示第一个字符串大于第二个字符串
+
+## 7.6Math对象
+
+###### 静态属性
+
+- Math.E：常数e。
+- Math.LN2：2 的自然对数。
+- Math.LN10：10 的自然对数。
+- Math.LOG2E：以 2 为底的e的对数。
+- Math.LOG10E：以 10 为底的e的对数。
+- Math.PI：常数π。
+- Math.SQRT1_2：0.5 的平方根。
+- Math.SQRT2：2 的平方根。
+
+###### 静态方法
+
+- Math.abs()：绝对值
+- Math.ceil()：向上取整
+- Math.floor()：向下取整
+- Math.max()：最大值
+- Math.min()：最小值
+- Math.pow()：指数运算
+- Math.sqrt()：平方根
+- Math.log()：以e为底的自然对数
+- Math.exp()：e的指数
+- Math.round()：四舍五入
+- Math.random()：随机数（>=0 && <1）
+- Math.sin()：返回参数的正弦（参数为弧度值）
+- Math.cos()：返回参数的余弦（参数为弧度值）
+- Math.tan()：返回参数的正切（参数为弧度值）
+- Math.asin()：返回参数的反正弦（返回值为弧度值）
+- Math.acos()：返回参数的反余弦（返回值为弧度值）
+- Math.atan()：返回参数的反正切（返回值为弧度值）
+
+## 7.7Date对象
+
+###### Date对象是 JavaScript 原生的时间库。它以1970年1月1日00:00:00作为时间的零点，可以表示的时间范围是前后各1亿天（单位为毫秒）
+
+###### Notes
+
+1. 参数可以是负整数，代表1970年元旦之前的时间。
+1. 只要是能被Date.parse()方法解析的字符串，都可以当作参数
+1. 参数为年、月、日等多个整数时，年和月是不能省略的，其他参数都可以省略的。也就是说，这时至少需要两个参数
+1. 参数可选值
+	- 年：使用四位数年份，比如2000。如果写成两位数或个位数，则加上1900，即10代表1910年。如果是负数，表示公元前。
+	- 月：0表示一月，依次类推，11表示12月。
+	- 日：1到31。
+	- 小时：0到23。
+	- 分钟：0到59。
+	- 秒：0到59
+	- 毫秒：0到999
+1. 类型自动转换时，Date实例如果转为数值，则等于对应的毫秒数；如果转为字符串，则等于对应的日期字符串
+
+###### 静态方法
+
+|方法|用法|
+|:-|:-|
+|Date.now()|返回当前时间距离时间零点（1970年1月1日 00:00:00 UTC）的毫秒数，相当于 Unix 时间戳乘以1000|
+|Date.parse()|用来解析日期字符串，返回该时间距离时间零点（1970年1月1日 00:00:00）的毫秒数。日期字符串应该符合 RFC 2822 和 ISO 8061 这两个标准，即YYYY-MM-DDTHH:mm:ss.sssZ格式，其中最后的Z表示时区。如果解析失败，返回NaN|
+|Date.UTC()|接受年、月、日等变量作为参数，返回该时间距离时间零点（1970年1月1日 00:00:00 UTC）的毫秒数|
+
+***注意：Date.parse()也能解析其他格式的时间字串***
+
+    Date.parse('Aug 9, 1995')
+    Date.parse('January 26, 2011 13:51:50')
+    Date.parse('Mon, 25 Dec 1995 13:30:00 GMT')
+    Date.parse('Mon, 25 Dec 1995 13:30:00 +0430')
+    Date.parse('2011-10-10')
+    Date.parse('2011-10-10T14:48:00')
+
+###### 实例方法
+
+|方法|用法|
+|:-|:-|
+|Date.prototype.valueOf()|valueOf方法返回实例对象距离时间零点（1970年1月1日00:00:00 UTC）对应的毫秒数，该方法等同于getTime方法|
+|Date.prototype.toString()|toString方法返回一个完整的日期字符串|
+|Date.prototype.toUTCString()|toUTCString方法返回对应的 UTC 时间，也就是比北京时间晚8个小时|
+|Date.prototype.toISOString()|toISOString方法返回对应时间的 ISO8601 写法，注意，toISOString方法返回的总是 UTC 时区的时间|
+|Date.prototype.toJSON()|toJSON方法返回一个符合 JSON 格式的 ISO 日期字符串，与toISOString方法的返回结果完全相同|
+|Date.prototype.toDateString()|toDateString方法返回日期字符串（不含小时、分和秒）|
+|Date.prototype.toTimeString()|toTimeString方法返回时间字符串（不含年月日）|
+|Date.prototype.toLocaleString()|完整的本地时间|
+|Date.prototype.toLocaleDateString()|本地日期（不含小时、分和秒）|
+|Date.prototype.toLocaleTimeString()|本地时间（不含年月日）|
+
+###### get类方法
+
+**返回当前时区时间**
+
+- getTime()：返回实例距离1970年1月1日00:00:00的毫秒数，等同于valueOf方法。
+- getDate()：返回实例对象对应每个月的几号（从1开始）。
+- getDay()：返回星期几，星期日为0，星期一为1，以此类推。
+- getFullYear()：返回四位的年份。
+- getMonth()：返回月份（0表示1月，11表示12月）。
+- getHours()：返回小时（0-23）。
+- getMilliseconds()：返回毫秒（0-999）。
+- getMinutes()：返回分钟（0-59）。
+- getSeconds()：返回秒（0-59）。
+- getTimezoneOffset()：返回当前时间与 UTC 的时区差异，以分钟表示，返回结果考虑到了夏令时因素。
+
+**返回UTC时区时间**
+
+- getUTCDate()
+- getUTCFullYear()
+- getUTCMonth()
+- getUTCDay()
+- getUTCHours()
+- getUTCMinutes()
+- getUTCSeconds()
+- getUTCMilliseconds()
+
+###### set类方法
+
+**设置当前时区时间**
+
+- setDate(date)：设置实例对象对应的每个月的几号（1-31），返回改变后毫秒时间戳。
+- setFullYear(year [, month, date])：设置四位年份。
+- setHours(hour [, min, sec, ms])：设置小时（0-23）。
+- setMilliseconds()：设置毫秒（0-999）。
+- setMinutes(min [, sec, ms])：设置分钟（0-59）。
+- setMonth(month [, date])：设置月份（0-11）。
+- setSeconds(sec [, ms])：设置秒（0-59）。
+- setTime(milliseconds)：设置毫秒时间戳。
+
+**设置UTC时区时间**
+
+- setUTCDate()
+- setUTCFullYear()
+- setUTCHours()
+- setUTCMilliseconds()
+- setUTCMinutes()
+- setUTCMonth()
+- setUTCSeconds()
+
+## 7.8正则对象RegExp
+
+###### RegExp的表示，下面两种写法是等价的，都新建了一个内容为xyz的正则表达式对象。它们的主要区别是，第一种方法在引擎编译代码时，就会新建正则表达式，第二种方法在运行时新建正则表达式，所以前者的效率较高。而且，前者比较便利和直观，所以实际应用中，基本上都采用字面量定义正则表达式
+
+- 一种是使用字面量，以斜杠表示开始和结束，var regex = /xyz/;
+- 另一种是使用RegExp构造函数，var regex = new RegExp('xyz');
+
+###### 实例属性（每一个实例都具有的属性）
+
+- 一类是修饰符相关，返回一个布尔值，表示对应的修饰符是否设置
+	- RegExp.prototype.ignoreCase：返回一个布尔值，表示是否设置了i修饰符
+	- RegExp.prototype.global：返回一个布尔值，表示是否设置了g修饰符
+	- RegExp.prototype.multiline：返回一个布尔值，表示是否设置了m修饰符
+
+- 另一类是与修饰符无关的属性，主要是下面两个
+	- RegExp.prototype.lastIndex：返回一个整数，表示下一次开始搜索的位置。该属性可读写，但是只在进行连续搜索时有意义
+	- RegExp.prototype.source：返回正则表达式的字符串形式（不包括反斜杠），该属性只读
+
+###### 实例方法
+
+> RegExp.prototype.test()方法返回一个布尔值，表示当前模式是否能匹配参数字符串,如果正则表达式带有g修饰符，则每一次test方法都从上一次结束的位置开始向后匹配
+#
+> RegExp.prototype.exec()用来返回匹配结果。如果发现匹配，就返回一个数组，成员是匹配成功的子字符串，否则返回null。**如果正则表示式包含圆括号（即含有“组匹配”），则返回的数组会包括多个成员。第一个成员是整个匹配成功的结果，后面的成员就是圆括号对应的匹配成功的组。也就是说，第二个成员对应第一个括号，第三个成员对应第二个括号，以此类推。整个数组的length属性等于组匹配的数量再加1**
+> exec方法的返回数组还包含以下两个属性：input,整个原字符串;index：整个模式匹配成功的开始位置（从0开始计数）
+#
+> **注意，带有g修饰符时，正则表达式内部会记住上一次的lastIndex属性，这时不应该更换所要匹配的字符串，否则会有一些难以察觉的错误**
+
+###### [字串中的实例方法（正则相关）](https://wangdoc.com/javascript/stdlib/regexp.html)
+
+- String.prototype.match()：返回一个数组，成员是所有匹配的子字符串
+- String.prototype.search()：按照给定的正则表达式进行搜索，返回一个整数，表示匹配开始的位置
+- String.prototype.replace()：按照给定的正则表达式进行替换，返回替换后的字符串
+- String.prototype.split()：按照给定规则进行字符串分割，返回一个数组，包含分割后的各个成员
+
+## 7.9正则规则
+
+- 字面量字符
+- 元字符
+	- 位置字符(^, $)
+	- 点字符(.),匹配除回车（\r）、换行(\n) 、行分隔符（\u2028）和段分隔符（\u2029）以外的所有字符。注意，对于码点大于0xFFFF字符，点字符不能正确匹配，会认为这是两个字符
+	- 选择符(|)，正则表达式中表示“或关系”（OR）
+	- 其他的元字符还包括\、\*、+、?、()、[]、{}等
+- 转义符(\)
+- 字符类([], [^], [-])
+- 特殊字符
+	- \cX 表示Ctrl-[X]，其中的X是A-Z之中任一个英文字母，用来匹配控制字符。
+	- [\b] 匹配退格键(U+0008)，不要与\b混淆。
+	- \n 匹配换行键。
+	- \r 匹配回车键。
+	- \t 匹配制表符 tab（U+0009）。
+	- \v 匹配垂直制表符（U+000B）。
+	- \f 匹配换页符（U+000C）。
+	- \0 匹配null字符（U+0000）。
+	- \xhh 匹配一个以两位十六进制数（\x00-\xFF）表示的字符。
+	- \uhhhh 匹配一个以四位十六进制数（\u0000-\uFFFF）表示的 Unicode 字符。
+- 预定义模式
+	- \d 匹配0-9之间的任一数字，相当于[0-9]。
+	- \D 匹配所有0-9以外的字符，相当于[^0-9]。
+	- \w 匹配任意的字母、数字和下划线，相当于[A-Za-z0-9_]。
+	- \W 除所有字母、数字和下划线以外的字符，相当于[^A-Za-z0-9_]。
+	- \s 匹配空格（包括换行符、制表符、空格符等），相等于[ \t\r\n\v\f]。
+	- \S 匹配非空格的字符，相当于[^ \t\r\n\v\f]。
+	- \b 匹配词的边界。
+	- \B 匹配非词边界，即在词的内部。
+- 重复类({n,m})
+- 量词符
+	- ? 问号表示某个模式出现0次或1次，等同于{0, 1}
+	- * 星号表示某个模式出现0次或多次，等同于{0,}
+	- + 加号表示某个模式出现1次或多次，等同于{1,}
+- 默认为贪婪模式匹配，可以在量词符后面加一个问号改为非贪婪模式
+	- +?：表示某个模式出现1次或多次，匹配时采用非贪婪模式。
+	- *?：表示某个模式出现0次或多次，匹配时采用非贪婪模式。
+	- ??：表格某个模式出现0次或1次，匹配时采用非贪婪模式。
+- 修饰符(g, i, m)，m修饰符表示多行模式（multiline），会修改^和$的行为。默认情况下（即不加m修饰符时），^和$匹配字符串的开始处和结尾处，加上m修饰符以后，^和$还会匹配行首和行尾，即^和$会识别换行符（\n）
+
+	    /world$/.test('hello world\n') // false
+	    /world$/m.test('hello world\n') // true
+	    /^b/m.test('a\nb') // true
+- [组匹配（()）](https://wangdoc.com/javascript/stdlib/regexp.html#%E7%BB%84%E5%8C%B9%E9%85%8D)
+	- 非捕获组 (?:x)， 表示不返回该组匹配的内容，即匹配的结果中不计入这个括号
+	- 先行断言 x(?=y)称为先行断言（Positive look-ahead），x只有在y前面才匹配，y不会被计入返回结果。比如，要匹配后面跟着百分号的数字，可以写成/\d+(?=%)/
+	- 先行否定断言 x(?!y)称为先行否定断言（Negative look-ahead），x只有不在y前面才匹配，y不会被计入返回结果。比如，要匹配后面跟的不是百分号的数字，就要写成/\d+(?!%)/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
