@@ -1,6 +1,6 @@
 # **ECMAScript 5.1知识点总结 <一>**
 ---
-## 0.0基础知识点总结参考自[网道](https://wangdoc.com/)
+## 0.0基础知识点，总结参考自[网道](https://wangdoc.com/)
 ## 1.1变量提升
 
 ###### JavaScript 引擎的工作方式是，先解析代码，获取所有被声明的变量，然后再一行一行地运行。这造成的结果，就是所有的变量的声明语句，都会被提升到代码的头部，这就叫做变量提升
@@ -1105,11 +1105,56 @@
 	- 先行断言 x(?=y)称为先行断言（Positive look-ahead），x只有在y前面才匹配，y不会被计入返回结果。比如，要匹配后面跟着百分号的数字，可以写成/\d+(?=%)/
 	- 先行否定断言 x(?!y)称为先行否定断言（Negative look-ahead），x只有不在y前面才匹配，y不会被计入返回结果。比如，要匹配后面跟的不是百分号的数字，就要写成/\d+(?!%)/
 
+## Json对象
+
+###### 格式：
+
+1. 复合类型的值只能是数组或对象，不能是函数、正则表达式对象、日期对象。
+1. 原始类型的值只有四种：字符串、数值（必须以`十进制`表示）、布尔值和null（不能使用NaN, Infinity, -Infinity和undefined）。
+1. 字符串必须使用双引号表示，不能使用单引号。
+1. 对象的`键名`必须放在`双引号`里面。
+1. 数组或对象最后一个成员的后面，`不能加逗号`。
 
 
+###### 静态方法
 
+> JSON.stringify方法用于将一个值转为 JSON 字符串。该字符串符合 JSON 格式，并且可以被JSON.parse方法还原
 
+	JSON.stringify('abc') // ""abc""
+	JSON.stringify(1) // "1"
+	JSON.stringify(false) // "false"
+	JSON.stringify([]) // "[]"
+	JSON.stringify({}) // "{}"
+	
+	JSON.stringify([1, "false", false])
+	// '[1,"false",false]'
+	
+	JSON.stringify({ name: "张三" })
+	// '{"name":"张三"}'
 
+1. JSON.stringify方法会忽略对象的不可遍历的属性
+2. 如果对象的属性是undefined、函数或 XML 对象，该属性会被JSON.stringify过滤
+3. 如果数组的成员是undefined、函数或 XML 对象，则这些值被转成null。
+4. 正则对象会被转成空对象。
+5. JSON.stringify方法还可以接受一个数组，作为第二个参数，指定需要转成字符串的属性；第二个参数还可以是一个函数，用来更改JSON.stringify的返回值
+6. JSON.stringify还可以接受第三个参数，用于增加返回的 JSON 字符串的可读性。如果是数字，表示每个属性前面添加的空格（最多不超过10个）；如果是字符串（不超过10个字符），则该字符串会添加在每行前面
+7. **如果参数对象有自定义的toJSON方法，那么JSON.stringify会使用这个方法的返回值作为参数，而忽略原对象的其他属性。toJSON方法的一个应用是，将正则对象自动转为字符串。因为JSON.stringify默认不能转换正则对象，但是设置了toJSON方法以后，就可以转换正则对象了**
+
+> JSON.parse方法用于将 JSON 字符串转换成对应的值。JSON.parse方法可以接受一个处理函数，作为第二个参数，用法与JSON.stringify方法类似
+
+    JSON.parse('{}') // {}
+    JSON.parse('true') // true
+    JSON.parse('"foo"') // "foo"
+    JSON.parse('[1, 5, "false"]') // [1, 5, "false"]
+    JSON.parse('null') // null
+    
+    var o = JSON.parse('{"name": "张三"}');
+    o.name // 张三
+
+---
+# 基础知识篇完结
+
+# OVER 总结参考自[网道](https://wangdoc.com/javascript/),感谢网道提供的互联网文档，此总结作为个人笔记以方便查询使用，有意者请声明文档最初来源（即[网道](https://wangdoc.com/javascript/)），即可随意使用本文档
 
 
 
