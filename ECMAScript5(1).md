@@ -642,7 +642,10 @@
 
 - value，value是该属性的属性值，默认为undefined。
 - writable，writable是一个布尔值，表示属性值（value）是否可改变（即是否可写），默认为true。
-- enumerable，enumerable是一个布尔值，表示该属性是否可遍历，默认为true。如果设为false，会使得某些操作（比如for...in循环、Object.keys()）跳过该属性。
+- enumerable，enumerable是一个布尔值，表示该属性是否可遍历，默认为true。如果设为false，会使得某些操作（比如
+- 
+- 
+- ...in循环、Object.keys()）跳过该属性。
 - configurable，configurable是一个布尔值，表示可配置性，默认为true。如果设为false，将阻止某些操作改写该属性，比如无法删除该属性，也不得改变该属性的属性描述对象（value属性除外）。也就是说，configurable属性控制了属性描述对象的可写性。
 - get，get是一个函数，表示该属性的取值函数（getter），默认为undefined。
 - set，set是一个函数，表示该属性的存值函数（setter），默认为undefined。
@@ -883,7 +886,8 @@
 #
 > String.prototype.search()用法基本等同于match，但是返回值为匹配的第一个位置。如果没有找到匹配，则返回-1
 #
-> String.prototype.replace()方法用于替换匹配的子字符串，一般情况下只替换第一个匹配（除非使用带有g修饰符的正则表达式）
+> String.prototype.replace()方法用于替换匹配的子字符串，一般情况下只替换第一个匹配（除非使用带有g修饰符的
+> 表达式）
 # 
 > String.prototype.split()方法按照给定规则分割字符串，返回一个由分割出来的子字符串组成的数组
 #
