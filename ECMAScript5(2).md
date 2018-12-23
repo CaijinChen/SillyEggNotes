@@ -1,6 +1,6 @@
 # **ECMAScript 5.1知识点总结 <二>**
 ---
-## 0.0进阶知识点，总结参考自[网道](https://wangdoc.com/)
+## 0.0进阶知识点，总结参考自[网道,创作者：阮一峰](https://wangdoc.com/)
 
 ## 1.1面向对象
 
@@ -431,7 +431,7 @@
 
 #### 节点集合:NodeList、HTMLCollection，两者区别: NodeList可以包含各种类型的节点，HTMLCollection只能包含 HTML 元素节点
 
-###### NodeList
+### NodeList
 
 ###### NodeList实例类似于一个数组(但是，它不是数组，不能使用pop或push之类数组特有的方法)，成员节点对象，以下方法可获取NodeList实例：
 #
@@ -447,7 +447,7 @@
 - NodeList.prototype.item() 接受一个整数值作为参数，表示成员的位置，返回该位置上的成员，其实直接使用方括号索引即可‘[]’
 - NodeList.prototype.keys()，NodeList.prototype.values()，NodeList.prototype.entries() 这三个方法都返回一个 ES6 的遍历器对象，可以通过for...of循环遍历获取每一个成员的信息。区别在于，keys()返回键名的遍历器，values()返回键值的遍历器，entries()返回的遍历器同时包含键名和键值的信息。
 
-###### HTMLCollection(实例均为动态集合)
+### HTMLCollection(实例均为动态集合)
 
 ###### 返回HTMLCollection实例的，主要是一些Document对象的集合属性，比如document.links、docuement.forms、document.images等
 
@@ -457,6 +457,268 @@
 - HTMLCollection.prototype.item() 接受一个整数值作为参数，表示成员的位置，返回该位置上的成员，其实直接使用方括号索引即可‘[]’
 - HTMLCollection.prototype.namedItem() 参数是一个字符串，表示id属性或name属性的值，返回对应的元素节点。如果没有对应的节点，则返回null
 
+### ParentNode
+
+##### 只有元素节点（element）、文档节点（document）和文档片段节点（documentFragment）拥有子节点，因此只有这三类节点会继承ParentNode接口
+
+###### 属性和方法
+
+- ParentNode.children 回一个HTMLCollection实例，成员是当前节点的所有元素子节点。该属性只读
+- ParentNode.firstElementChild 返回当前节点的第一个元素子节点。如果没有任何元素子节点，则返回null
+- ParentNode.lastElementChild 返回当前节点的最后一个元素子节点，如果不存在任何元素子节点，则返回null
+- ParentNode.childElementCount 返回一个整数，表示当前节点的所有元素子节点的数目。如果不包含任何元素子节点，则返回0
+- ParentNode.append 为当前节点追加一个或多个子节点，位置是最后一个元素子节点的后面。该方法不仅可以添加元素子节点，还可以添加文本子节点
+- ParentNode.prepend 方法为当前节点追加一个或多个子节点，位置是第一个元素子节点的前面。它的用法与append方法完全一致，也是没有返回值
+
+### ChildNode
+
+##### 如果一个节点有父节点，那么该节点就继承了ChildNode接口
+
+###### 属性与方法
+
+- ChildNode.remove() 用于从父节点移除当前节点
+- ChildNode.before() 在当前节点的前面，插入一个或多个同级节点。两者拥有相同的父节点;该方法不仅可以插入元素节点，还可以插入文本节点
+- ChildNode.after() 用于在当前节点的后面，插入一个或多个同级节点，两者拥有相同的父节点。用法与before方法完全相同
+- ChildNode.replaceWith() 使用参数节点，替换当前节点。参数可以是元素节点，也可以是文本节点
+
+## 1.5Document
+
+> document节点对象代表整个文档，每张网页都有自己的document对象。window.document属性就指向这个对象。只要浏览器开始载入 HTML 文档，该对象就存在了，可以直接使用
+
+### 获取
+
+- 正常的网页，直接使用document或window.document。
+- iframe框架里面的网页，使用iframe节点的contentDocument属性。
+- Ajax 操作返回的文档，使用XMLHttpRequest对象的responseXML属性。
+- 内部节点的ownerDocument属性。
+
+### 属性
+
+#### 快捷方式属性
+
+- document.defaultView 返回document对象所属的window对象。如果当前文档不属于window对象，该属性返回null
+- document.doctype 对于 HTML 文档来说，document对象一般有两个子节点。第一个子节点是document.doctype，指向<DOCTYPE>节点，即文档类型（Document Type Declaration，简写DTD）节点。HTML 的文档类型节点，一般写成<!DOCTYPE html>。如果网页没有声明 DTD，该属性返回null。
+- document.documentElement属性返回当前文档的根元素节点（root）。它通常是document节点的第二个子节点，紧跟在document.doctype节点后面。HTML网页的该属性，一般是<html>节点
+- document.body属性指向<body>节点，属性是可写的，如果改写它们的值，相当于移除所有子节点
+- document.head属性指向<head>节点，属性是可写的，如果改写它们的值，相当于移除所有子节点
+- document.scrollingElement属性返回文档的滚动元素。也就是说，当文档整体滚动时，到底是哪个元素在滚动
+- document.activeElement属性返回获得当前焦点（focus）的 DOM 元素
+- document.fullscreenElement属性返回当前以全屏状态展示的 DOM 元素。如果不是全屏状态，该属性返回null
+
+#### 节点集合属性
+
+- document.links属性返回当前文档所有设定了href属性的\<a>及\<area>节点
+- document.forms属性返回所有\<form>表单节点
+- document.images属性返回页面所有\<img>图片节点
+- document.scripts属性返回所有\<script>节点
+- document.embeds属性和document.plugins属性，都返回所有\<embed>节点
+- document.styleSheets属性返回文档内嵌或引入的样式表集合
+- **除了document.styleSheets，以上的集合属性返回的都是HTMLCollection实例;HTMLCollection实例是类似数组的对象，所以这些属性都有length属性，都可以使用方括号运算符引用成员。如果成员有id或name属性，还可以用这两个属性的值，在HTMLCollection实例上引用到这个成员**
+
+#### 文档静态信息属性
+ 
+- document.documentURI属性和document.URL属性都返回一个字符串，表示当前文档的网址。不同之处是它们继承自不同的接口，documentURI继承自Document接口，可用于所有文档；URL继承自HTMLDocument接口，只能用于 HTML 文档
+- document.domain属性返回当前文档的域名，不包含协议和接口;另外，设置document.domain会导致端口被改成null。因此，如果通过设置document.domain来进行通信，双方网页都必须设置这个值，才能保证端口相同
+- Location对象是浏览器提供的原生对象，提供 URL 相关的信息和操作方法。通过window.location和document.location属性，可以拿到这个对象
+- document.lastModified属性返回一个字符串，表示当前文档最后修改的时间。不同浏览器的返回值，日期格式是不一样的
+- document.title属性返回当前文档的标题。默认情况下，返回<title>节点的值。但是该属性是可写的，一旦被修改，就返回修改后的值
+- document.characterSet属性返回当前文档的编码，比如UTF-8、ISO-8859-1等等
+- document.referrer属性返回一个字符串，表示当前文档的访问者来自哪里,如果无法获取来源，或者用户直接键入网址而不是从其他网页点击进入，document.referrer返回一个空字符串
+- document.dir返回一个字符串，表示文字方向。它只有两个可能的值：rtl表示文字从右到左，阿拉伯文是这种方式；ltr表示文字从左到右，包括英语和汉语在内的大多数文字采用这种方式
+- compatMode属性返回浏览器处理文档的模式，可能的值为BackCompat（向后兼容模式）和CSS1Compat（严格模式）
+
+#### 文档状态属性
+
+- document.hidden属性返回一个布尔值，表示当前页面是否可见。如果窗口最小化、浏览器切换了 Tab，都会导致导致页面不可见，使得document.hidden返回true
+- document.visibilityState返回文档的可见状态
+	- visible：页面可见。注意，页面可能是部分可见，即不是焦点窗口，前面被其他窗口部分挡住了。
+	- hidden：页面不可见，有可能窗口最小化，或者浏览器切换到了另一个 Tab。
+	- prerender：页面处于正在渲染状态，对于用户来说，该页面不可见。
+	- unloaded：页面从内存里面卸载了
+- document.readyState属性返回当前文档的状态，共有三种可能的值
+	- loading：加载 HTML 代码阶段（尚未完成解析）
+	- interactive：加载外部资源阶段
+	- complete：加载完成
+- document.cookie属性用来操作浏览器 Cookie
+- document.designMode属性控制当前文档是否可编辑。该属性只有两个值on和off，默认值为off。一旦设为on，用户就可以编辑整个文档的内容
+- document.implementation属性返回一个DOMImplementation对象。该对象有三个方法，主要用于创建独立于当前文档的新的 Document 对象
+	- DOMImplementation.createDocument()：创建一个 XML 文档。
+	- DOMImplementation.createHTMLDocument()：创建一个 HTML 文档。
+	- DOMImplementation.createDocumentType()：创建一个 DocumentType 对象。
+- document.open方法清除当前文档所有内容，使得文档处于可写状态，供document.write方法写入内容
+- document.close方法用来关闭document.open()打开的文档
+- document.write方法用于向当前文档写入内容。在网页的首次渲染阶段，只要页面没有关闭写入（即没有执行document.close()），document.write写入的内容就会追加在已有内容的后面；如果页面已经解析完成（DOMContentLoaded事件发生之后），再调用write方法，它会先调用open方法，擦除当前文档所有内容，然后再写入
+- document.writeln方法与write方法完全一致，除了会在输出内容的尾部添加换行符，writeln方法添加的是 ASCII 码的换行符，渲染成 HTML 网页时不起作用，即在网页上显示不出换行。网页上的换行，必须显式写入<br>
+- document.querySelector方法接受一个 CSS 选择器作为参数，返回匹配该选择器的元素节点。如果有多个节点满足匹配条件，则返回第一个匹配的节点。如果没有发现匹配的节点，则返回null
+- document.querySelectorAll方法与querySelector用法类似，区别是返回一个NodeList对象
+- document.getElementsByTagName方法搜索 HTML 标签名，返回符合条件的元素。它的返回值是一个类似数组对象（HTMLCollection实例），可以实时反映 HTML 文档的变化。如果没有任何匹配的元素，就返回一个空集；注意，元素节点本身也定义了getElementsByTagName方法，返回该元素的后代元素中符合条件的元素。也就是说，这个方法不仅可以在document对象上调用，也可以在任何元素节点上调用
+- document.getElementsByClassName方法返回一个类似数组的对象（HTMLCollection实例），包括了所有class名字符合指定条件的元素，元素的变化实时反映在返回结果中
+- document.getElementsByName方法用于选择拥有name属性的 HTML 元素（比如`<form>、<radio>、<img>、<frame>、<embed>和<object>`等），返回一个类似数组的的对象（NodeList实例），因为name属性相同的元素可能不止一个
+- document.getElementById方法返回匹配指定id属性的元素节点。如果没有发现匹配的节点，则返回null
+- document.elementFromPoint方法返回位于页面指定位置最上层的元素节点；方法的两个参数，依次是相对于当前视口左上角的横坐标和纵坐标，单位是像素。如果位于该位置的 HTML 元素不可返回（比如文本框的滚动条），则返回它的父元素（比如文本框）。如果坐标值无意义（比如负值或超过视口大小），则返回null
+- document.elementsFromPoint()返回一个数组，成员是位于指定坐标（相对于视口）的所有元素
+- document.caretPositionFromPoint()返回一个 CaretPosition 对象，包含了指定坐标点在节点对象内部的位置信息。CaretPosition 对象就是光标插入点的概念，用于确定光标点在文本对象内部的具体位置，它有两个属性：
+	- CaretPosition.offsetNode：该位置的节点对象
+	- CaretPosition.offset：该位置在offsetNode对象内部，与起始位置相距的字符数
+- document.createElement方法用来生成元素节点，并返回该节点
+- document.createTextNode方法用来生成文本节点（Text实例），并返回该节点。它的参数是文本节点的内容
+- document.createAttribute方法生成一个新的属性节点（Attr实例），并返回它
+- document.createComment方法生成一个新的注释节点，并返回该节点
+- document.createDocumentFragment方法生成一个空的文档片段对象（DocumentFragment实例）；DocumentFragment是一个存在于内存的 DOM 片段，不属于当前文档，常常用来生成一段较复杂的 DOM 结构，然后再插入当前文档。这样做的好处在于，因为DocumentFragment不属于当前文档，对它的任何改动，都不会引发网页的重新渲染，比直接修改当前文档的 DOM 有更好的性能表现
+- document.createEvent方法生成一个事件对象（Event实例），方法的参数是事件类型，比如UIEvents、MouseEvents、MutationEvents、HTMLEvents
+- document.addEventListener()，document.removeEventListener()，document.dispatchEvent() 这三个方法用于处理document节点的事件。它们都继承自EventTarget接口
+- document.hasFocus方法返回一个布尔值，表示当前文档之中是否有元素被激活或获得焦点，*注意，有焦点的文档必定被激活（active），反之不成立，激活的文档未必有焦点。比如，用户点击按钮，从当前窗口跳出一个新窗口，该新窗口就是激活的，但是不拥有焦点*
+- document.adoptNode方法将某个节点及其子节点，从原来所在的文档或DocumentFragment里面移除，归属当前document对象，返回插入后的新节点。**注意，document.adoptNode方法只是改变了节点的归属，并没有将这个节点插入新的文档树。所以，还要再用appendChild方法或insertBefore方法，将新节点插入当前文档树**
+- document.importNode方法则是从原来所在的文档或DocumentFragment里面，拷贝某个节点及其子节点，让它们归属当前document对象。拷贝的节点对象的ownerDocument属性，会变成当前的document对象，而parentNode属性是null
+- document.createNodeIterator方法返回一个子节点遍历器。方法第一个参数为所要遍历的根节点，第二个参数为所要遍历的节点类型,可选值为：
+	- 所有节点：NodeFilter.SHOW_ALL
+	- 元素节点：NodeFilter.SHOW_ELEMENT
+	- 文本节点：NodeFilter.SHOW_TEXT
+	- 评论节点：NodeFilter.SHOW_COMMENT
+- document.createTreeWalker方法返回一个 DOM 的子树遍历器。它与document.createNodeIterator方法基本是类似的，区别在于它返回的是TreeWalker实例，后者返回的是NodeIterator实例。另外，它的第一个节点不是根节点
+- document.execCommand document.designMode属性设为on，那么整个文档用户可编辑；如果元素的contenteditable属性设为true，那么该元素可编辑。这两种情况下，可以使用document.execCommand()方法，改变内容的样式，比如document.execCommand('bold')会使得字体加粗，三个参数为：
+	- command：字符串，表示所要实施的样式。
+	- showDefaultUI：布尔值，表示是否要使用默认的用户界面，建议总是设为false。
+	- input：字符串，表示该样式的辅助内容，比如生成超级链接时，这个参数就是所要链接的网址。如果第二个参数设为true，那么浏览器会弹出提示框，要求用户在提示框输入该参数。但是，不是所有浏览器都支持这样做，为了兼容性，还是需要自己部署获取这个参数的方式
+- document.queryCommandSupported document.queryCommandEnabled()方法返回一个布尔值，表示浏览器是否允许使用这个方法
+- document.queryCommandSupported()方法返回一个布尔值，表示当前是否可用某种样式改变。比如，加粗只有存在文本选中时才可用，如果没有选中文本，就不可用
+- document.getSelection 指向window.getSelection()
+
+---
+
+### 1.6Element
+
+> Element节点对象对应网页的 HTML 元素。每一个 HTML 元素，在 DOM 树上都会转化成一个Element节点对象（以下简称元素节点）
+#
+> Element对象继承了Node接口，因此Node的属性和方法在Element对象都存在。此外，不同的 HTML 元素对应的元素节点是不一样的，浏览器使用不同的构造函数，生成不同的元素节点，比如\<a>元素的节点对象由HTMLAnchorElement构造函数生成,\<button>元素的节点对象由HTMLButtonElement构造函数生成。因此，元素节点不是一种对象，而是一组对象，这些对象除了继承Element的属性和方法，还有各自构造函数的属性和方法
+
+#### 元素特性的相关属性
+
+- Element.id属性返回指定元素的id属性，该属性可读写
+- Element.tagName属性返回指定元素的大写标签名，与nodeName属性的值相等
+- Element.dir属性用于读写当前元素的文字方向，可能是从左到右（"ltr"），也可能是从右到左（"rtl"）
+- Element.accessKey属性用于读写分配给当前元素的快捷键
+
+		// HTML 代码如下
+		// \<button accesskey="h" id="btn">点击\</button>
+		var btn = document.getElementById('btn');
+		btn.accessKey // "h"
+- Element.draggable属性返回一个布尔值，表示当前元素是否可拖动。该属性可读写
+- Element.lang属性返回当前元素的语言设置。该属性可读写
+- Element.tabIndex属性返回一个整数，表示当前元素在 Tab 键遍历时的顺序。该属性可读写
+- Element.title属性用来读写当前元素的 HTML 属性title。该属性通常用来指定，鼠标悬浮时弹出的文字提示框
+
+#### 元素状态的相关属性
+
+- Element.hidden属性返回一个布尔值，表示当前元素的hidden属性，用来控制当前元素是否可见。该属性可读写(注意，该属性与 CSS 设置是互相独立的。CSS 对这个元素可见性的设置，Element.hidden并不能反映出来，CSS 的设置高于Element.hidden。如果 CSS 指定了该元素不可见（display: none）或可见（display: hidden），那么Element.hidden并不能改变该元素实际的可见性)
+- Element.contentEditable，HTML 元素可以设置contentEditable属性，使得元素的内容可以编辑，属性返回一个字符串，表示是否设置了contenteditable属性返回一个字串，有三种可能的值。该属性可写：
+	- "true"：元素内容可编辑
+	- "false"：元素内容不可编辑
+	- "inherit"：元素是否可编辑，继承了父元素的设置
+- Element.isContentEditable属性返回一个布尔值，同样表示是否设置了contenteditable属性。该属性只读
+- Element.attributes属性返回一个类似数组的对象，成员是当前元素节点的所有属性节点
+- Element.className属性用来读写当前元素节点的class属性。它的值是一个字符串，每个class之间用空格分割
+- Element.classList属性返回一个类似数组的对象，当前元素节点的每个class就是这个对象的一个成员，该对象的length属性（只读）返回当前元素的class数量，可对classList操作：
+	- add()：增加一个 class。
+	- remove()：移除一个 class。
+	- contains()：检查当前元素是否包含某个 class。
+	- toggle()：将某个 class 移入或移出当前元素。
+	- item()：返回指定索引位置的 class。
+	- toString()：将 class 的列表转为字符串
+- Element.dataset属性返回一个对象，可以从这个对象读写data-属性；**注意，dataset上面的各个属性返回都是字符串。**HTML 代码中，data-属性的属性名，只能包含英文字母、数字、连词线（-）、点（.）、冒号（:）和下划线（_）。它们转成 JavaScript 对应的dataset属性名，data-abc-def对应dataset.abcDef，data-abc-1对应dataset["abc-1"]。除了使用dataset读写data-属性，也可以使用Element.getAttribute()和Element.setAttribute()，通过完整的属性名读写这些属性。
+- Element.innerHTML属性返回一个字符串，等同于该元素包含的所有 HTML 代码。该属性可读写，常用来设置某个节点的内容。它能改写所有元素节点的内容，包括<HTML>和<body>元素。**注意，读取属性值的时候，如果文本节点包含&、小于号（<）和大于号（>），innerHTML属性会将它们转为实体形式&amp;、&lt;、&gt;。如果想得到原文，建议使用element.textContent属性**
+- Element.outerHTML属性返回一个字符串，表示当前元素节点的所有 HTML 代码，包括该元素本身和所有子元素，属性是可读写的，对它进行赋值，等于替换掉当前元素
+- Element.clientHeight属性返回一个整数值，表示元素节点的 CSS 高度（单位像素），只对块级元素生效，对于行内元素返回0。如果块级元素没有设置 CSS 高度，则返回实际高度
+- Element.
+- 属性返回元素节点的 CSS 宽度，同样只对块级元素有效，也是只包括元素本身的宽度和padding，如果有垂直滚动条，还要减去垂直滚动条的宽度（**document.documentElement的clientHeight属性，返回当前视口的高度（即浏览器窗口的高度），等同于window.innerHeight属性减去水平滚动条的高度（如果有的话）。document.body的高度则是网页的实际高度。一般来说，document.body.clientHeight大于document.documentElement.clientHeight**）
+- Element.clientTop属性等于网页元素顶部边框的宽度（单位像素）
+- Element.clientLeft属性等于元素节点左边框（left border）的宽度
+- Element.scrollHeight属性返回一个整数值（小数会四舍五入），表示当前元素的总高度（单位像素），包括溢出容器、当前不可见的部分。它包括padding，但是不包括border、margin以及水平滚动条的高度（如果有水平滚动条的话），还包括伪元素（::before或::after）的高度，属性只读
+- Element.scrollWidth属性表示当前元素的总宽度（单位像素），其他地方都与scrollHeight属性类似。属性只读
+- **注意，如果元素节点的内容出现溢出，即使溢出的内容是隐藏的，scrollHeight属性仍然返回元素的总高度。**
+- Element.scrollLeft属性表示当前元素的水平滚动条向右侧滚动的像素数量，设置该属性的值，会导致浏览器将当前元素自动滚动到相应的位置
+- Element.scrollTop属性表示当前元素的垂直滚动条向下滚动的像素数量，设置该属性的值，会导致浏览器将当前元素自动滚动到相应的位置
+- Element.offsetParent属性返回最靠近当前元素的、并且 CSS 的position属性不等于static的上层元素（**如果某个元素的所有上层节点的position属性都是static，则Element.offsetParent属性指向<body>元素**）
+- Element.offsetHeight属性返回一个整数，表示元素的 CSS 垂直高度（单位像素），只比Element.clientHeight多了边框的高度
+- Element.offsetWidth属性表示元素的 CSS 水平宽度（单位像素）。只比Element.clientWidth多了边框的宽度
+- Element.offsetLeft返回当前元素左上角相对于Element.offsetParent节点的水平位移
+- Element.offsetTop返回当前元素左上角相对于Element.offsetParent节点的垂直位移
+- Element.style 每个元素节点都有style用来读写该元素的行内样式信息
+- Element.children属性返回一个类似数组的对象（HTMLCollection实例），包括当前元素节点的所有子元素。如果当前元素没有子元素，则返回的对象包含零个成员
+- Element.childElementCount属性返回当前元素节点包含的子元素节点的个数，与Element.children.length的值相同
+- Element.firstElementChild属性返回当前元素的第一个元素子节点
+- Element.lastElementChild属性返回当前元素的最后一个元素子节点
+- Element.nextElementSibling属性返回当前元素节点的后一个同级元素节点，如果没有则返回null
+- Element.previousElementSibling属性返回当前元素节点的前一个同级元素节点，如果没有则返回null
+
+### 方法
+
+- 属性相关方法
+	- getAttribute()：读取某个属性的值
+	- getAttributeNames()：返回当前元素的所有属性名
+	- setAttribute()：写入属性值
+	- hasAttribute()：某个属性是否存在
+	- hasAttributes()：当前元素是否有属性
+	- removeAttribute()：删除属性
+- 其他方法
+	- Element.querySelector方法接受 CSS 选择器作为参数，返回父元素的第一个匹配的子元素。如果没有找到匹配的子元素，就返回null
+	- Element.querySelectorAll方法接受 CSS 选择器作为参数，返回一个NodeList实例，包含所有匹配的子元素
+	- Element.getElementsByClassName方法返回一个HTMLCollection实例，成员是当前元素节点的所有具有指定 class 的子元素节点。该方法与document.getElementsByClassName方法的用法类似，只是搜索范围不是整个文档，而是当前元素节点
+	- Element.getElementsByTagName方法返回一个HTMLCollection实例，成员是当前节点的所有匹配指定标签名的子元素节点
+	- Element.closest方法接受一个 CSS 选择器作为参数，返回匹配该选择器的、最接近当前节点的一个祖先节点（包括当前节点本身）。如果没有任何节点匹配 CSS 选择器，则返回null
+	- Element.matches方法返回一个布尔值，表示当前元素是否匹配给定的 CSS 选择器
+	- Element.addEventListener()：添加事件的回调函数
+	- Element.removeEventListener()：移除事件监听函数
+	- Element.dispatchEvent()：触发事件
+	- Element.scrollIntoView方法滚动当前元素，进入浏览器的可见区域，类似于设置window.location.hash的效果
+	- Element.getBoundingClientRect方法返回一个对象，提供当前元素节点的大小、位置等信息，基本上就是 CSS 盒状模型的所有信息，方法返回的rect对象，具有以下属性（全部为只读）：
+		- x：元素左上角相对于视口的横坐标
+		- y：元素左上角相对于视口的纵坐标
+		- height：元素高度
+		- width：元素宽度
+		- left：元素左上角相对于视口的横坐标，与x属性相等
+		- right：元素右边界相对于视口的横坐标（等于x + width）
+		- top：元素顶部相对于视口的纵坐标，与y属性相等
+		- bottom：元素底部相对于视口的纵坐标（等于y + height）
+		- **注意：width和height包括了元素本身 + padding + border**
+	- Element.getClientRects方法返回一个类似数组的对象，里面是当前元素在页面上形成的所有矩形（所以方法名中的Rect用的是复数）。每个矩形都有bottom、height、left、right、top和width六个属性，表示它们相对于视口的四个坐标，以及本身的高度和宽度。对于盒状元素（比如\<div>和\<p>），该方法返回的对象中只有该元素一个成员。对于行内元素（比如\<span>、\<a>、\<em>），该方法返回的对象有多少个成员，取决于该元素在页面上占据多少行。这是它和Element.getBoundingClientRect()方法的主要区别，后者对于行内元素总是返回一个矩形。
+	- Element.insertAdjacentElement方法在相对于当前元素的指定位置，插入一个新的节点。该方法返回被插入的节点，如果插入失败，返回null,方法一共可以接受两个参数，第一个参数是一个字符串，表示插入的位置，第二个参数是将要插入的节点。第一个参数只可以取如下的值:
+		- beforebegin：当前元素之前
+		- afterbegin：当前元素内部的第一个子节点前面
+		- beforeend：当前元素内部的最后一个子节点后面
+		- afterend：当前元素之后
+	- Element.insertAdjacentHTML方法用于将一个 HTML 字符串，解析生成 DOM 结构，插入相对于当前节点的指定位置
+	- Element.insertAdjacentText方法在相对于当前节点的指定位置，插入一个文本节点，用法与
+	- Element.insertAdjacentHTML方法完全一致
+	- Element.remove方法继承自 ChildNode 接口，用于将当前元素节点从它的父节点移除
+	- Element.focus方法用于将当前页面的焦点，转移到指定元素上
+	- Element.blur方法用于将焦点从当前元素移除
+	- Element.click方法用于在当前元素上模拟一次鼠标点击，相当于触发了click事件
+
+## 1.7操作属性
+
+> HTML 元素包括标签名和若干个键值对，这个键值对就称为“属性”（attribute）。属性本身是一个对象（Attr对象），但是实际上，这个对象极少使用。一般都是通过元素节点对象（HTMlElement对象）来操作属性。
+#
+> Element.attributes,元素对象有一个attributes属性，返回一个类似数组的动态对象，成员是该元素标签的所有属性节点对象，属性的实时变化都会反映在这个节点对象上。其他类型的节点对象，虽然也有attributes属性，但返回的都是null，因此可以把这个属性视为元素对象独有的，单个属性可以通过序号引用，也可以通过属性名引用
+
+### 方法
+
+> **适用性** 这六个方法对所有属性（包括用户自定义的属性）都适用。
+#
+> **返回值** getAttribute()只返回字符串，不会返回其他类型的值。
+#
+> **属性名** 这些方法只接受属性的标准名称，不用改写保留字，比如for和class都可以直接使用。另外，这些方法对于属性名是大小写不敏感的。
+
+- getAttribute(), 方法返回当前元素节点的指定属性。如果指定属性不存在，则返回null
+- getAttributeNames(), 返回一个数组，成员是当前元素的所有属性的名字。如果当前元素没有任何属性，则返回一个空数组。使用Element.attributes属性，也可以拿到同样的结果，唯一的区别是它返回的是类似数组的对象
+- setAttribute() 方法用于为当前元素节点新增属性。如果同名属性已存在，则相当于编辑已存在的属性。该方法没有返回值，**注意：首先，属性值总是字符串，其他类型的值会自动转成字符串，比如布尔值true就会变成字符串true；其次，上例的disable属性是一个布尔属性，对于<button>元素来说，这个属性不需要属性值，只要设置了就总是会生效，因此setAttribute方法里面可以将disabled属性设成任意值**
+- hasAttribute() 方法返回一个布尔值，表示当前元素节点是否包含指定属性
+- hasAttributes() 方法返回一个布尔值，表示当前元素是否有属性，如果没有任何属性，就返回false，否则返回true
+- removeAttribute() 方法移除指定属性。该方法没有返回值
+
+### 自定义属性 data-*
+
+> data-后面的属性名有限制，只能包含字母、数字、连词线（-）、点（.）、冒号（:）和下划线（_)。而且，属性名不应该使用A到Z的大写字母，比如不能有data-helloWorld这样的属性名，而要写成data-hello-world,转成dataset的键名时，连词线后面如果跟着一个小写字母，那么连词线会被移除，该小写字母转为大写字母，其他字符不变。反过来，dataset的键名转成属性名时，所有大写字母都会被转成连词线+该字母的小写形式，其他字符不变。比如，dataset.helloWorld会转成data-hello-world
 
 
 

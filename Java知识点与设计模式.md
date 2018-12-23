@@ -1,5 +1,10 @@
 # Java知识点与设计模式
 ---
+### 【整理自[菜鸟教程](http://www.runoob.com)与gitbook《[设计模式Java版](https://gof.quanke.name/)》（刘伟）】
+
+### 忠告：适合对Java有一定了解的人阅读
+
+## 一、Java知识点
 
 ### Java关键字
 <table>
@@ -324,6 +329,362 @@
 - this关键字：指向自己的引用。
 - **如果父类的构造器带有参数，则必须在子类的构造器中显式地通过 super 关键字调用父类的构造器并配以适当的参数列表，如果父类构造器没有参数，则在子类的构造器中不需要使用 super 关键字调用父类构造器，系统会自动调用父类的无参构造器。**
 
+### 多态
+
+- 重载与重写
+
+	|区别点|重载方法|重写方法|
+	|:-|:-|:-|
+	|参数列表|必须修改|一定不能修改|
+	|返回类型|可以修改|一定不能修改|
+	|异常|可以修改|可以减少或删除，一定不能抛出新的或者更广的异常|
+	|访问|可以修改|一定不能做更严格的限制（可以降低限制）|
+
+### 抽象
+
+- **构造方法，类方法（用static修饰的方法）不能声明为抽象方法**
+
+### 封装
+
+1. 良好的封装能够减少耦合。
+
+2. 类内部的结构可以自由修改。
+
+3. 可以对成员变量进行更精确的控制。
+
+4. 隐藏信息，实现细节。
+
+### 接口
+
+##### 接口与类相似点：
+
+- 一个接口可以有多个方法。
+- 接口文件保存在 .java 结尾的文件中，文件名使用接口名。
+- 接口的字节码文件保存在 .class 结尾的文件中。
+- 接口相应的字节码文件必须在与包名称相匹配的目录结构中。
+##### 接口与类的区别：
+
+- 接口不能用于实例化对象。
+- 接口没有构造方法。
+- 接口中所有的方法必须是抽象方法。
+- 接口不能包含成员变量，除了 static 和 final 变量。
+- 接口不是被类继承了，而是要被类实现。
+- 接口支持多继承。
+
+#### 接口特性
+
+- 接口中每一个方法也是隐式抽象的,接口中的方法会被隐式的指定为 public abstract（只能是 public abstract，其他修饰符都会报错）。
+- 接口中可以含有变量，但是接口中的变量会被隐式的指定为 public static final 变量（并且只能是 public，用 private 修饰会报编译错误）。
+- 接口中的方法是不能在接口中实现的，只能由实现接口的类来实现接口中的方法。
+
+### Java集合框架
+
+![](https://i.imgur.com/91G8iWV.png)
+
+> 从上面的集合框架图可以看到，Java 集合框架主要包括两种类型的容器，一种是集合（Collection），存储一个元素集合，另一种是图（Map），存储键/值对映射。Collection 接口又有 3 种子类型，List、Set 和 Queue，再下面是一些抽象类，最后是具体实现类，常用的有 ArrayList、LinkedList、HashSet、LinkedHashSet、HashMap、LinkedHashMap 等等。
+
+![](https://i.imgur.com/QlKALV1.png)
+
+> 集合框架是一个用来代表和操纵集合的统一架构。所有的集合框架都包含如下内容：
+- 接口：是代表集合的抽象数据类型。例如 Collection、List、Set、Map 等。之所以定义多个接口，是为了以不同的方式操作集合对象
+- 实现（类）：是集合接口的具体实现。从本质上讲，它们是可重复使用的数据结构，例如：ArrayList、LinkedList、HashSet、HashMap。
+- 算法：是实现集合接口的对象里的方法执行的一些有用的计算，例如：搜索和排序。这些算法被称为多态，那是因为相同的方法可以在相似的接口上有着不同的实现。
+
+##### 一些接口
+
+![](https://i.imgur.com/q3X7IpM.png)
+
+**Set和List的区别：**
+
+1. Set 接口实例存储的是无序的，不重复的数据。List 接口实例存储的是有序的，可以重复的元素。
+
+2. Set检索效率低下，删除和插入效率高，插入和删除不会引起元素位置改变 <实现类有HashSet,TreeSet>。
+
+3. List和数组类似，可以动态增长，根据实际存储的数据的长度自动增长List的长度。查找元素效率高，插入删除效率低，因为会引起其他元素位置改变 <实现类有ArrayList,LinkedList,Vector> 。
+
+#### 抽象类和接口的区别
+
+- 抽象类中的方法可以有方法体，就是能实现方法的具体功能，但是接口中的方法不行。
+- 抽象类中的成员变量可以是各种类型的，而接口中的成员变量只能是 public static final 类型的。
+- 接口中不能含有静态代码块以及静态方法(用 static 修饰的方法)，而抽象类是可以有静态代码块和静态方法。
+- 一个类只能继承一个抽象类，而一个类却可以实现多个接口。
+
+#### 一些实现
+
+1. AbstractCollection 
+实现了大部分的集合接口。
+2. AbstractList 
+继承于AbstractCollection 并且实现了大部分List接口。
+3. AbstractSequentialList 
+继承于 AbstractList ，提供了对数据元素的链式访问而不是随机访问。
+4. LinkedList
+该类实现了List接口，允许有null（空）元素。主要用于创建链表数据结构，该类没有同步方法，如果多个线程同时访问一个List，则必须自己实现访问同步，解决方法就是在创建List时候构造一个同步的List。例如：
+
+		Listlist=Collections.synchronizedList(newLinkedList(...));
+		LinkedList 查找效率低。
+
+5. ArrayList
+该类也是实现了List的接口，实现了可变大小的数组，随机访问和遍历元素时，提供更好的性能。该类也是非同步的,在多线程的情况下不要使用。ArrayList 增长当前长度的50%，插入删除效率低。
+
+6. AbstractSet 
+继承于AbstractCollection 并且实现了大部分Set接口。
+7. HashSet
+该类实现了Set接口，不允许出现重复元素，不保证集合中元素的顺序，允许包含值为null的元素，但最多只能一个。
+
+8. LinkedHashSet
+具有可预知迭代顺序的 Set 接口的哈希表和链接列表实现。
+9. TreeSet
+该类实现了Set接口，可以实现排序等功能。
+
+10. AbstractMap 
+实现了大部分的Map接口。
+11. HashMap 
+HashMap 是一个散列表，它存储的内容是键值对(key-value)映射。
+该类实现了Map接口，根据键的HashCode值存储数据，具有很快的访问速度，最多允许一条记录的键为null，不支持线程同步。
+12. TreeMap 
+继承了AbstractMap，并且使用一颗树。
+13. WeakHashMap 
+继承AbstractMap类，使用弱密钥的哈希表。
+14. LinkedHashMap 
+继承于HashMap，使用元素的自然顺序对元素进行排序.
+15. IdentityHashMap 
+继承AbstractMap类，比较文档时使用引用相等。
+
+**何对象加入集合类后，自动转变为Object类型，所以在取出的时候，需要进行强制类型转换。**
+
+### 泛型
+
+#### 定义泛型方法的规则：
+
+1. 所有泛型方法声明都有一个类型参数声明部分（由尖括号分隔），该类型参数声明部分在方法返回类型之前（在下面例子中的<E>）。
+1. 每一个类型参数声明部分包含一个或多个类型参数，参数间用逗号隔开。一个泛型参数，也被称为一个类型变量，是用于指定一个泛型类型名称的标识符。
+1. 类型参数能被用来声明返回值类型，并且能作为泛型方法得到的实际参数类型的占位符。
+1. 泛型方法体的声明和其他方法一样。注意类型参数只能代表引用型类型，不能是原始类型（像int,double,char的等）
+
+		// 泛型方法 printArray                         public static < E > void printArray( E[] inputArray ){
+	      // 输出数组元素            
+	         for ( E element : inputArray ){        
+	            System.out.printf( "%s ", element );
+	         }
+	         System.out.println();
+	    }
+		//有界的类型参数:
+		//可能有时候，你会想限制那些被允许传递到一个类型参数的类型种类范围。例如，一个操作数字的方法可能只希望接受Number或者Number子类的实例。这就是有界类型参数的目的。
+		//要声明一个有界的类型参数，首先列出类型参数的名称，后跟extends关键字，最后紧跟它的上界。
+		public static <T extends Comparable<T>> T maximum(T x, T y, T z)
+		{                     
+		  T max = x; // 假设x是初始最大值
+		  if ( y.compareTo( max ) > 0 ){
+		     max = y; //y 更大
+		  }
+		  if ( z.compareTo( max ) > 0 ){
+		     max = z; // 现在 z 更大           
+		  }
+		  return max; // 返回最大对象
+		}
+
+#### 泛型类
+
+	public class Box<T> {
+	   
+	  private T t;
+	 
+	  public void add(T t) {
+	    this.t = t;
+	  }
+	 
+	  public T get() {
+	    return t;
+	  }
+	}
+
+#### 类型通配符
+1. 型通配符一般是使用?代替具体的类型参数。例如 List<?> 在逻辑上是List<String>,List<Integer> 等所有List<具体类型实参>的父类。
+2. 类型通配符上限通过形如List来定义，如此定义就是通配符泛型值接受Number及其下层子类类型。
+
+		public static void getData(List<? extends Number> data) {
+		}
+3、类型通配符下限通过形如 List<? super Number>来定义，表示类型只能接受Number及其上层父类类型，如Objec类型的实例。
+
+### Java序列化
+
+一个类的对象要想序列化成功，必须满足两个条件：
+
+1. 该类必须实现 java.io.Serializable 对象。
+
+2. 该类的所有属性必须是可序列化的。如果有一个属性不是可序列化的，则该属性必须注明是短暂的（**transient**）。如果想知道一个 Java 标准类是否是可序列化的，请查看该类的文档。检验一个类的实例是否能序列化十分简单， 只需要查看该类有没有实现 java.io.Serializable接口。
+
+##### ObjectOutputStream 类用来序列化一个对象
+##### ObjectInputStream 类用来反序列化一个对象
+
+### 网络编程
+
+1. BIO 编程
+
+> Blocking IO： 同步阻塞的编程方式。
+
+> BIO编程方式通常是在JDK1.4版本之前常用的编程方式。编程实现过程为：首先在服务端启动一个ServerSocket来监听网络请求，客户端启动Socket发起网络请求，默认情况下ServerSocket回建立一个线程来处理此请求，如果服务端没有线程可用，客户端则会阻塞等待或遭到拒绝。
+
+> 且建立好的连接，在通讯过程中，是同步的。在并发处理效率上比较低。大致结构如下：
+
+> 同步并阻塞，服务器实现模式为一个连接一个线程，即客户端有连接请求时服务器端就需要启动一个线程进行处理，如果这个连接不做任何事情会造成不必要的线程开销，当然可以通过线程池机制改善。
+
+> BIO方式适用于连接数目比较小且固定的架构，这种方式对服务器资源要求比较高，并发局限于应用中，JDK1.4以前的唯一选择，但程序直观简单易理解。
+
+2. NIO 编程：Unblocking IO（New IO）： 同步非阻塞的编程方式。
+
+> NIO本身是基于事件驱动思想来完成的，其主要想解决的是BIO的大并发问题，NIO基于Reactor，当socket有流可读或可写入socket时，操作系统会相应的通知引用程序进行处理，应用再将流读取到缓冲区或写入操作系统。也就是说，这个时候，已经不是一个连接就要对应一个处理线程了，而是有效的请求，对应一个线程，当连接没有数据时，是没有工作线程来处理的。
+
+> NIO的最重要的地方是当一个连接创建后，不需要对应一个线程，这个连接会被注册到多路复用器上面，所以所有的连接只需要一个线程就可以搞定，当这个线程中的多路复用器进行轮询的时候，发现连接上有请求的话，才开启一个线程进行处理，也就是一个请求一个线程模式。
+
+> 在NIO的处理方式中，当一个请求来的话，开启线程进行处理，可能会等待后端应用的资源(JDBC连接等)，其实这个线程就被阻塞了，当并发上来的话，还是会有BIO一样的问题
+
+3. AIO编程：Asynchronous IO： 异步非阻塞的编程方式。
+
+> 与NIO不同，当进行读写操作时，只须直接调用API的read或write方法即可。这两种方法均为异步的，对于读操作而言，当有流可读取时，操作系统会将可读的流传入read方法的缓冲区，并通知应用程序；对于写操作而言，当操作系统将write方法传递的流写入完毕时，操作系统主动通知应用程序。即可以理解为，read/write方法都是异步的，完成后会主动调用回调函数。在JDK1.7中，这部分内容被称作NIO.2，主要在java.nio.channels包下增加了下面四个异步通道：AsynchronousSocketChannel、AsynchronousServerSocketChannel、AsynchronousFileChannel、AsynchronousDatagramChanne
+
+### 多线程
+
+![](https://i.imgur.com/YSsuaqz.png)
+
+1. **新建状态**:使用 new 关键字和 Thread 类或其子类建立一个线程对象后，该线程对象就处于新建状态。它保持这个状态直到程序 start() 这个线程。
+ 
+1. **就绪状态**:当线程对象调用了start()方法之后，该线程就进入就绪状态。就绪状态的线程处于就绪队列中，要等待JVM里线程调度器的调度。
+
+1. **运行状态**:如果就绪状态的线程获取 CPU 资源，就可以执行 run()，此时线程便处于运行状态。处于运行状态的线程最为复杂，它可以变为阻塞状态、就绪状态和死亡状态。
+ 
+1. **阻塞状态**:如果一个线程执行了sleep（睡眠）、suspend（挂起）等方法，失去所占用资源之后，该线程就从运行状态进入阻塞状态。在睡眠时间已到或获得设备资源后可以重新进入就绪状态。可以分为三种：
+
+	- 等待阻塞：运行状态中的线程执行 wait() 方法，使线程进入到等待阻塞状态。
+	
+	- 同步阻塞：线程在获取 synchronized 同步锁失败(因为同步锁被其他线程占用)。
+	
+	- 其他阻塞：通过调用线程的 sleep() 或 join() 发出了 I/O 请求时，线程就会进入到阻塞状态。当sleep() 状态超时，join() 等待线程终止或超时，或者 I/O 处理完毕，线程重新转入就绪状态。
+
+1. **死亡状态**:一个运行状态的线程完成任务或者其他终止条件发生时，该线程就切换到终止状态。
+
+##### 优先级
+
+> Java 线程的优先级是一个整数，其取值范围是 1 （Thread.MIN_PRIORITY ） - 10 （Thread.MAX_PRIORITY ）。
+#
+> 默认情况下，每一个线程都会分配一个优先级 NORM_PRIORITY（5）。
+#
+> 具有较高优先级的线程对程序更重要，并且应该在低优先级的线程之前分配处理器资源。但是，线程优先级不能保证线程执行的顺序，而且非常依赖于平台。
+
+##### 创建
+
+Java 提供了三种创建线程的方法：
+
+- 通过实现 Runnable 接口；
+- 通过继承 Thread 类本身；
+- 通过 Callable 和 Future 创建线程。
+
+##### 线程Threa类的一些方法
+
+- 实例方法
+![](https://i.imgur.com/VdvnSWN.png)
+- 静态方法
+![](https://i.imgur.com/xCbsQqU.png)
+
+##### 通过 Callable 和 Future 创建线程
+
+1. 创建 Callable 接口的实现类，并实现 call() 方法，该 call() 方法将作为线程执行体，并且有返回值。
+
+2. 创建 Callable 实现类的实例，使用 FutureTask 类来包装 Callable 对象，该 FutureTask 对象封装了该 Callable 对象的 call() 方法的返回值。
+
+3. 使用 FutureTask 对象作为 Thread 对象的 target 创建并启动新线程。
+
+4. 调用 FutureTask 对象的 get() 方法来获得子线程执行结束后的返回值
+
+		public class CallableThreadTest implements Callable<Integer> {
+		public static void main(String[] args)  
+		{  
+		    CallableThreadTest ctt = new CallableThreadTest();  
+		    FutureTask<Integer> ft = new FutureTask<>(ctt);  
+		    for(int i = 0;i < 100;i++)  
+		    {  
+		        System.out.println(Thread.currentThread().getName()+" 的循环变量i的值"+i);  
+		        if(i==20)  
+		        {  
+		            new Thread(ft,"有返回值的线程").start();  
+		        }  
+		    }  
+		    try  
+		    {  
+		        System.out.println("子线程的返回值："+ft.get());  
+		    } catch (InterruptedException e)  
+		    {  
+		        e.printStackTrace();  
+		    } catch (ExecutionException e)  
+		    {  
+		        e.printStackTrace();  
+		    }  
+		
+		}
+		@Override  
+		public Integer call() throws Exception  
+		{  
+		    int i = 0;  
+		    for(;i<100;i++)  
+		    {  
+		        System.out.println(Thread.currentThread().getName()+" "+i);  
+		    }  
+		    return i;  
+		}  
+		}
+
+##### 创建线程的三种方式的对比
+1. 采用实现 Runnable、Callable 接口的方式创建多线程时，线程类只是实现了 Runnable 接口或 Callable 接口，还可以继承其他类。
+
+2. 使用继承 Thread 类的方式创建多线程时，编写简单，如果需要访问当前线程，则无需使用 Thread.currentThread() 方法，直接使用 this 即可获得当前线程。
+
+##### 一些概念
+
+- 线程同步
+- 线程间通信
+- 线程死锁
+- 线程控制：挂起、停止和恢复
+
+##### 多线程的使用
+
+> 有效利用多线程的关键是理解程序是并发执行而不是串行执行的。例如：程序中有两个子系统需要并发执行，这时候就需要利用多线程编程。
+#
+> 通过对多线程的使用，可以编写出非常高效的程序。不过请注意，如果你创建太多的线程，程序执行的效率实际上是降低了，而不是提升了。
+#
+> 请记住，上下文的切换开销也很重要，如果你创建了太多的线程，CPU 花费在上下文的切换的时间将多于执行程序的时间！
+
+### Java Doc格式
+
+> Java 支持三种注释方式。前两种分别是 // 和 /* */，第三种被称作说明注释，它以 /\*\* 开始，以 */结束。
+#
+> 说明注释允许你在程序中嵌入关于程序的信息。你可以使用 javadoc 工具软件来生成信息，并输出到HTML文件中。
+#
+> 说明注释，使你更加方便的记录你的程序信息。
+
+##### javadoc工具可识别的标签
+
+标签|描述|示例
+:-|:-|:-
+@author|标识一个类的作者|@author description
+@deprecated|指名一个过期的类或成员	|@deprecated description
+{@docRoot}|指明当前文档根目录的路径|Directory Path
+@exception|标志一个类抛出的异常|@exception exception-name explanation
+{@inheritDoc}|从直接父类继承的注释|Inherits a comment from the immediate surperclass.
+{@link}|插入一个到另一个主题的链接|{@link name text}
+{@linkplain}|插入一个到另一个主题的链接，但是该链接显示纯文本字体|Inserts an in-line link to another topic.
+@param|说明一个方法的参数|@param parameter-name explanation
+@return|说明返回值类型|@return explanation
+@see|指定一个到另一个主题的链接|@see anchor
+@serial|说明一个序列化属性|@serial description
+@serialData|说明通过writeObject( ) 和 writeExternal( )方法写的数据|@serialData description
+@serialField|说明一个ObjectStreamField组件|@serialField name type description
+@since|标记当引入一个特定的变化时|@since release
+@throws|和 @exception标签一样.|The @throws tag has the same meaning as the @exception tag.
+{@value}|显示常量的值，该常量必须是static属性。|Displays the value of a constant, which must be a static field.
+@version|指定类的版本|	@version info
+
+**自定义标签？**
+
 ---
 
 ### 其他知识点
@@ -339,13 +700,226 @@
 - Java 程序通常不捕获错误。错误一般发生在严重故障时，它们在Java程序处理的范畴之外。Error 用来指示运行时环境发生的错误。
 ![](https://i.imgur.com/UHupPXL.png)
 - 子类和父类在同一个包中，那么子类可以重写父类所有方法，除了声明为private和final的方法；子类和父类不在同一个包中，那么子类只能够重写父类的声明为public和protected的非final方法。
-- 重载与重写
+- **通过序列化实现深克隆**
+- Java语言提供的Cloneable接口和Serializable接口的代码非常简单，它们都是空接口，这种空接口也称为标识接口，标识接口中没有任何方法的定义，其作用是告诉JRE这些接口的实现类是否具有某个功能，如是否支持克隆、是否支持序列化等
 
-	|区别点|重载方法|重写方法|
-	|:-|:-|:-|
-	|参数列表|必须修改|一定不能修改|
-	|返回类型|可以修改|一定不能修改|
-	|异常|可以修改|可以减少或删除，一定不能抛出新的或者更广的异常|
-	|访问|可以修改|一定不能做更严格的限制（可以降低限制）|
+---
 
-- **构造方法，类方法（用static修饰的方法）不能声明为抽象方法**
+## 二、设计模式（将介绍24种，GoF 23种，比GoF多了一种简单工厂模式）
+
+> 根据模式的用途，设计模式可分为创建型(Creational)，结构型(Structural)和行为型(Behavioral)三种，其中创建型模式主要用于描述如何创建对象，结构型模式主要用于描述如何实现类或对象的组合，行为型模式主要用于描述类或对象怎样交互以及怎样分配职责
+
+#### 设计原则
+
+设计原则名称|定 义|使用频率
+:-|:-|:-
+单一职责原则 (Single Responsibility Principle, SRP)|一个类只负责一个功能领域中的相应职责，或者可以定义为：就一个类而言，应该只有一个引起它变化的原因|★★★★☆
+开闭原则 (Open-Closed Principle, OCP)|一个软件实体应当对扩展开放，对修改关闭。即软件实体应尽量在不修改原有代码的情况下进行扩展|★★★★★
+里氏代换原则(Liskov SubstitutionPrinciple, LSP)|所有引用基类对象的地方能够透明地使用其子类的对象，即在软件中将一个基类对象替换成它的子类对象，程序将不会产生任何错误和异常，反过来则不成立|★★★★★
+依赖倒转原则 (Dependence InversionPrinciple, DIP)|抽象不应该依赖于细节，细节应该依赖于抽象，换言之，要针对接口编程，而不是针对实现编程|★★★★★
+接口隔离原则(Interface SegregationPrinciple, ISP)|使用多个专门的接口，而不使用单一的总接口|★★☆☆☆
+合成复用原则 (Composite ReusePrinciple, CRP)|尽量使用对象组合，而不是继承来达到复用的目的|★★★★☆
+迪米特法则 (Law of Demeter, LoD)|一个软件实体应当尽可能少地与其他实体发生相互作用|★★★☆☆
+
+#### 6种创建型模式
+
+##### 单例模式 Singleton Pattern（违背了单一职责原则）
+
+> 定义
+#
+- 在单例类的内部实现只生成一个实例，同时它提供一个静态的getInstance()工厂方法，让客户可以访问它的唯一实例；为了防止在外部对其实例化，将其构造函数设计为私有；在单例类内部定义了一Singleton类型的静态对象，作为外部共享的唯一
+实例
+#
+> 要点
+#
+- 一是某个类只能有一个实例；二是它必须自行创建这个实例；三是它必须自行向整个系统提供这个实例。饿汉式单例类不能实现延迟加载，不管将来用不用始终占据内存；懒汉式单例类线程安全控制烦琐，而且性能受影响。使用IoDH技术可以避免上述问题
+
+		//Initialization on Demand Holder
+		class Singleton {
+		private Singleton() {
+		}
+		private static class HolderClass {
+		private final static Singleton instance = new Singleton();
+		}
+		public static Singleton getInstance() {
+		return HolderClass.instance;
+		}
+		public static void main(String args[]) {
+		Singleton s1, s2;
+		s1 = Singleton.getInstance();
+		s2 = Singleton.getInstance();
+		System.out.println(s1==s2);
+		}
+		}
+		//由于静态单例对象没有作为Singleton的成员变量直接实例化，因此类加载时不会实例化Singleton，第一次
+		//调用getInstance()时将加载内部类HolderClass，在该内部类中定义了一个static类型的变量instance，
+		//此时会首先初始化这个成员变量，由Java虚拟机来保证其线程安全性，确保该成员变量只能初始化一次。
+		//由于getInstance()方法没有任何线程锁定，因此其性能不会造成任何影响。
+
+#
+> 示例
+#
+![](https://i.imgur.com/izPkSM2.png)
+
+##### 简单工厂模式 Simple Factory Pattern（违背开闭原则）
+
+> 定义
+#
+- 简单工厂模式(Simple Factory Pattern)：定义一个工厂类，它可以根据参数的不同返回不同类的实例，被创建的实例通常都具有共同的父类。因为在简单工厂模式中用于创建实例的方法是静态(static)方法，因此简单工厂模式又被称为静态工厂方法(Static Factory Method)模式，它属于类创建型模式
+#
+> 要点
+#
+- 当你需要什么，只需要传入一个正确的参数，就可以获取你所需要的对象，而无须知道其创建细节。简单工厂模式结构比较简单，其核心是工厂类的设计
+#
+> 示例
+#
+![](https://i.imgur.com/oaw8Nsy.png)
+
+##### 工厂方法模式 Factory Method Pattern
+
+> 定义
+# 
+- 定义一个用于创建对象的接口，让子类决定将哪一个类实例化，工厂方法模式让一个类的实例化延迟到其子类，又简称为工厂模式(Factory Pattern)，又可称作虚拟构造器模式(Virtual Constructor Pattern)或多态工厂模式(Polymorphic Factory Pattern)。工厂方法模式是一种类创建型模式。
+#
+> 总结
+#
+- 工厂方法模式是简单工厂模式的延伸，它继承了简单工厂模式的优点，同时还弥补了简单工厂模式的不足。工厂方法模式是使用频率最高的设计模式之一，是很多开源框架和API类库的核心模式
+#
+> 示例
+#
+![](https://i.imgur.com/DbvUEvi.png)
+
+##### 抽象工厂模式 Abstract Factory Pattern（违背开闭原则）
+
+> 定义
+#
+- 提供一个创建一系列相关或相互依赖对象的接口，而无须指定它们具体的类。抽象工厂模式又称为Kit模式，它是一种对象创建型模式。
+#
+> 缺点
+#
+- 增加新的产品等级结构麻烦，需要对原有系统进行较大的修改，甚至需要修改抽象层代码，这显然会带来较大的不便，违背了“开闭原则”
+#
+> 示例
+#
+![](https://i.imgur.com/YpBD3Zm.png)
+
+##### 原型模式 Prototype Pattern（违背开闭原则）
+
+> 定义
+#
+- 将一个原型对象传给那个要发动创建的对象，这个要发动创建的对象通过请求原型对象拷贝自己来实现创建过程。由于在软件系统中我们经常会遇到需要创建多个相同或者相似对象的情况，因此原型模式在真实开发中的使用频率还是非常高的。原型模式是一种“另类”的创建型模式，创建克隆对象的工厂就是原型类自身，工厂方法由克隆方法来实现
+#
+> 要点
+#
+-  需要为每一个类配备一个克隆方法，而且该克隆方法位于一个类的内部，当对已有的类进行改造时，需要修改源代码，违背了“开闭原则”； 可以使用深克隆的方式保存对象的状态，使用原型模式将对象复制一份并将其状态保存起来，以便在需要的时候使用（如恢复到某一历史状态），可辅助实现撤销操作； 在实现深克隆时需要编写较为复杂的代码，而且当对象之间存在多重的嵌套引用时，为了实现深克隆，每一层对象对应的类都必须支持深克隆，实现起来可能会比较麻烦
+
+##### 建造者模式 Builder Pattern
+
+> 定义
+#
+- 将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。建造者模式是一种对象创建型模式
+#
+> 要点
+#
+- 建造者模式所创建的产品一般具有较多的共同点，其组成部分相似，如果产品之间的差异性很大，例如很多组成部分都不相同，不适合使用建造者模式，因此其使用范围受到一定的限制；如果产品的内部变化复杂，可能会导致需要定义很多具体建造者类来实现这种变化，导致系统变得很庞大，增加系统的理解难度和运行成本
+#
+> 示例
+#
+![](https://i.imgur.com/KZaHW7k.png)
+
+#### 7种结构性模式
+
+##### 适配器模式 Adapter Pattern
+
+> 定义
+#
+- 将一个接口转换成客户希望的另一个接口，使接口不兼容的那些类可以一起工作，其别名为包装器(Wrapper)。适配器模式既可以作为类结构型模式，也可以作为对象结构型模式。（**类适配器、对象适配器、双向适配器、缺省适配器**）
+#
+> 要点
+#
+- 将目标类和适配者类解耦，通过引入一个适配器类来重用现有的适配者类，无须修改原有结构
+#
+> 示例(对象适配器)
+#
+![](https://i.imgur.com/GDZaPWE.png)
+
+##### 桥接模式 Bridge Pattern
+
+> 定义
+#
+- 
+#
+> 要点
+#
+- 
+#
+> 示例
+#
+
+##### 组合模式 Composite Pattern
+
+> 定义
+#
+- 
+#
+> 要点
+#
+- 
+#
+> 示例
+#
+
+##### 装饰模式 Decorator Pattern
+
+> 定义
+#
+- 
+#
+> 要点
+#
+- 
+#
+> 示例
+#
+
+##### 外观模式 Facade Pattern
+
+> 定义
+#
+- 
+#
+> 要点
+#
+- 
+#
+> 示例
+#
+
+##### 享元模式 Flyweight Pattern
+
+> 定义
+#
+- 
+#
+> 要点
+#
+- 
+#
+> 示例
+#
+
+##### 代理模式 Proxy Pattern
+
+> 定义
+#
+- 
+#
+> 要点
+#
+- 
+#
+> 示例
+#
+
+
+#### 11种行为型模式
