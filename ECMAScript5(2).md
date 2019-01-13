@@ -720,16 +720,365 @@
 
 > data-后面的属性名有限制，只能包含字母、数字、连词线（-）、点（.）、冒号（:）和下划线（_)。而且，属性名不应该使用A到Z的大写字母，比如不能有data-helloWorld这样的属性名，而要写成data-hello-world,转成dataset的键名时，连词线后面如果跟着一个小写字母，那么连词线会被移除，该小写字母转为大写字母，其他字符不变。反过来，dataset的键名转成属性名时，所有大写字母都会被转成连词线+该字母的小写形式，其他字符不变。比如，dataset.helloWorld会转成data-hello-world
 
+## 1.8Text 节点和DocumentFragment 节点
 
+### Text 节点
 
+> 文本节点（Text）代表元素节点（Element）和属性节点（Attribute）的文本内容。如果一个节点只包含一段文本，那么它就有一个文本子节点，代表该节点的文本内容。通常我们使用父节点的firstChild、nextSibling等属性获取文本节点，或者使用Document节点的createTextNode方法创造一个文本节点
+#
+> 浏览器原生提供一个Text构造函数。它返回一个文本节点实例。它的参数就是该文本节点的文本内容。文本节点除了继承Node接口，还继承了CharacterData接口
+#
+### 属性
 
+- data属性等同于nodeValue属性，用来设置或读取文本节点的内容
+- wholeText属性将当前文本节点与毗邻的文本节点，作为一个整体返回，大多数情况下，wholeText属性的返回值，与data属性和textContent属性相同。但是，某些特殊情况会有差异
+- length属性返回当前文本节点的文本长度
+- nextElementSibling属性返回紧跟在当前文本节点后面的那个同级元素节点。如果取不到元素节点，则返回null
+- previousElementSibling属性返回当前文本节点前面最近的同级元素节点。如果取不到元素节点，则返回null
 
+### 方法
 
+- appendData()：在Text节点尾部追加字符串。
+- deleteData()：删除Text节点内部的子字符串，第一个参数为子字符串开始位置，第二个参数为子字符串长度。
+- insertData()：在Text节点插入字符串，第一个参数为插入位置，第二个参数为插入的子字符串。
+- replaceData()：用于替换文本，第一个参数为替换开始位置，第二个参数为需要被替换掉的长度，第三个参数为新加入的字符串。
+- subStringData()：用于获取子字符串，第一个参数为子字符串在Text节点中的开始位置，第二个参数为子字符串长度。
+- remove方法用于移除当前Text节点
+- splitText方法将Text节点一分为二，变成两个毗邻的Text节点。它的参数就是分割位置（从零开始），分割到该位置的字符前结束。如果分割位置不存在，将报错（父元素节点的normalize方法可以将毗邻的两个Text节点合并）
 
+### DocumentFragment 节点
 
+> DocumentFragment节点代表一个文档的片段，本身就是一个完整的 DOM 树形结构。它没有父节点，parentNode返回null，但是可以插入任意数量的子节点。它不属于当前文档，操作DocumentFragment节点，要比直接操作 DOM 树快得多
+#
+> 它一般用于构建一个 DOM 结构，然后插入当前文档。document.createDocumentFragment方法，以及浏览器原生的DocumentFragment构造函数，可以创建一个空的DocumentFragment节点。然后再使用其他 DOM 方法，向其添加子节点
+#
+> 注意，DocumentFragment节点本身不能被插入当前文档。当它作为appendChild()、insertBefore()、replaceChild()等方法的参数时，是它的所有子节点插入当前文档，而不是它自身。一旦DocumentFragment节点被添加进当前文档，它自身就变成了空节点（textContent属性为空字符串），可以被再次使用。如果想要保存DocumentFragment节点的内容，可以使用cloneNode方法。
+#
+##### DocumentFragment节点对象没有自己的属性和方法，全部继承自Node节点和ParentNode接口。也就是说，DocumentFragment节点比Node节点多出以下四个属性。
 
- 
+- children：返回一个动态的HTMLCollection集合对象，包括当前DocumentFragment对象的所有子元素节点。
+- firstElementChild：返回当前DocumentFragment对象的第一个子元素节点，如果没有则返回null。
+- lastElementChild：返回当前DocumentFragment对象的最后一个子元素节点，如果没有则返回null。
+- childElementCount：返回当前DocumentFragment对象的所有子元素数量。
 
+## 1.9CSS操作
+
+##### HTML 元素的 style 属性
+
+> 使用网页元素节点的getAttribute方法、setAttribute方法和removeAttribute方法，直接读写或删除网页元素的style属性
+
+	div.setAttribute(
+		'style',
+		'background-color:red;' + 'border:1px solid black;'
+	);
+
+##### CSSStyleDeclaration 接口
+
+> CSSStyleDeclaration 接口用来操作元素的样式。三个地方部署了这个接口。CSSStyleDeclaration 接口可以直接读写 CSS 的样式属性，不过，连词号需要变成骆驼拼写法
+
+- 元素节点的style属性（Element.style）
+- CSSStyle实例的style属性
+- window.getComputedStyle()的返回值
+#
+	var divStyle = document.querySelector('div').style;
+	
+	divStyle.backgroundColor = 'red';
+	divStyle.border = '1px solid black';
+	divStyle.width = '100px';
+	divStyle.height = '100px';
+	divStyle.fontSize = '10em';
+	
+	divStyle.backgroundColor // red
+	divStyle.border // 1px solid black
+	divStyle.height // 100px
+	divStyle.width // 100px
+
+**如果 CSS 属性名是 JavaScript 保留字，则规则名之前需要加上字符串css，比如float写成cssFloat，另外，该对象的属性值都是字符串，设置时必须包括单位，但是不含规则结尾的分号。**
+**Element.style返回的只是行内样式，并不是该元素的全部样式。通过样式表设置的样式，或者从父元素继承的样式，无法通过这个属性得到。元素的全部样式要通过window.getComputedStyle()得到**
+
+### 属性
+
+- CSSStyleDeclaration.cssText属性用来读写当前规则的所有样式声明文本
+		var divStyle = document.querySelector('div').style;
+		
+		divStyle.cssText = 'background-color: red;'
+		  + 'border: 1px solid black;'
+		  + 'height: 100px;'
+		  + 'width: 100px;';
+- CSSStyleDeclaration.length属性返回一个整数值，表示当前规则包含多少条样式声明
+- CSSStyleDeclaration.parentRule属性返回当前规则所属的那个样式块（CSSRule 实例）。如果不存在所属的样式块，该属性返回null。该属性只读，且只在使用 CSSRule 接口时有意义
+		var declaration = document.styleSheets[0].rules[0].style;
+		declaration.parentRule === document.styleSheets[0].rules[0]
+		// true
+
+### 方法
+
+- CSSStyleDeclaration.getPropertyPriority方法接受 CSS 样式的属性名作为参数，返回一个字符串，表示有没有设置important优先级。如果有就返回important，否则返回空字符串
+- CSSStyleDeclaration.getPropertyValue方法接受 CSS 样式属性名作为参数，返回一个字符串，表示该属性的属性值。
+- CSSStyleDeclaration.item方法接受一个整数值作为参数，返回该位置的 CSS 属性名。
+- CSSStyleDeclaration.item方法接受一个整数值作为参数，返回该位置的 CSS 属性名
+- CSSStyleDeclaration.removeProperty方法接受一个属性名作为参数，在 CSS 规则里面移除这个属性，返回这个属性原来的值。
+- CSSStyleDeclaration.setProperty方法用来设置新的 CSS 属性。该方法没有返回值。该方法可以接受三个参数。
+
+	- 第一个参数：属性名，该参数是必需的。
+	- 第二个参数：属性值，该参数可选。如果省略，则参数值默认为空字符串。
+	- 第三个参数：优先级，该参数可选。如果设置，唯一的合法值是important，表示 CSS 规则里面的!important。
+
+### CSS模块的侦测
+
+> CSS 的规格发展太快，新的模块层出不穷。不同浏览器的不同版本，对 CSS 模块的支持情况都不一样。有时候，需要知道当前浏览器是否支持某个模块，这就叫做“CSS模块的侦测”
+#
+###### 一个比较普遍适用的方法是，判断元素的style对象的某个属性值是否为字符串
+
+		typeof element.style.animationName === 'string';
+		typeof element.style.transform === 'string';
+		//即使该属性实际上并未设置，也会返回一个空字符串。如果该属性不存在，则会返回undefined
+		document.body.style['maxWidth'] // ""
+		document.body.style['maximumWidth'] // undefined,浏览器不支持该属性
+
+###### 一个侦测函数：
+
+		function isPropertySupported(property) {
+		  if (property in document.body.style) return true;
+		  var prefixes = ['Moz', 'Webkit', 'O', 'ms', 'Khtml'];
+		  var prefProperty = property.charAt(0).toUpperCase() + property.substr(1);
+		
+		  for(var i = 0; i < prefixes.length; i++){
+		    if((prefixes[i] + prefProperty) in document.body.style) return true;
+		  }
+		
+		  return false;
+		}
+		
+		isPropertySupported('background-clip')
+		// true
+
+### CSS对象
+
+> 浏览器原生提供 CSS 对象，为 JavaScript 操作 CSS 提供一些工具方法
+
+- CSS.escape方法用于转义 CSS 选择器里面的特殊字符
+
+		//避免foo#bar中‘#’被识别用为id选择器的标志
+		document.querySelector('#' + CSS.escape('foo#bar'))
+- CSS.supports方法返回一个布尔值，表示当前环境是否支持某一句 CSS 规则
+
+		// 第一种写法
+		CSS.supports('transform-origin', '5px') // true
+		
+		// 第二种写法
+		CSS.supports('display: table-cell') // true
+
+### window.getComputedStyle()
+
+> 行内样式（inline style）具有最高的优先级，改变行内样式，通常会立即反映出来。但是，网页元素最终的样式是综合各种规则计算出来的。因此，如果想得到元素实际的样式，只读取行内样式是不够的，需要得到浏览器最终计算出来的样式规则。
+#
+> window.getComputedStyle方法，就用来返回浏览器计算后得到的最终规则。它接受一个节点对象作为参数，返回一个 CSSStyleDeclaration 实例，包含了指定节点的最终样式信息。所谓“最终样式信息”，指的是各种 CSS 规则叠加后的结果,**getComputedStyle方法还可以接受第二个参数，表示当前元素的伪元素（比如:before、:after、:first-line、:first-letter等）**
+
+### CSS伪元素
+
+> CSS 伪元素是通过 CSS 向 DOM 添加的元素，主要是通过:before和:after选择器生成，然后用content属性指定伪元素的内容
+
+##### 节点元素的style对象无法读写伪元素的样式，这时就要用到window.getComputedStyle()。JavaScript 获取伪元素，可以使用下面的方法
+
+		var test = document.querySelector('#test');
+		
+		var result = window.getComputedStyle(test, ':before').content;
+		var color = window.getComputedStyle(test, ':before').color;
+		//此外，也可以使用 CSSStyleDeclaration 实例的getPropertyValue方法，获取伪元素的属性。
+		var result = window.getComputedStyle(test, ':before')
+		  .getPropertyValue('content');
+		var color = window.getComputedStyle(test, ':before')
+		  .getPropertyValue('color');
+
+### StyleSheet接口
+
+##### StyleSheet接口代表网页的一张样式表，包括\<link>元素加载的样式表\<style>元素内嵌的样式表。document对象的styleSheets属性，可以返回当前页面的所有StyleSheet实例（即所有样式表）。它是一个类似数组的对象
+
+	var sheets = document.styleSheets;
+	var sheet = document.styleSheets[0];
+	sheet instanceof StyleSheet // true
+
+##### 如果是\<style>元素嵌入的样式表，还有另一种获取StyleSheet实例的方法，就是这个节点元素的sheet属性
+
+	// HTML 代码为 <style id="myStyle"></style>
+	var myStyleSheet = document.getElementById('myStyle').sheet;
+	myStyleSheet instanceof StyleSheet // true
+
+#### 实例属性
+
+- StyleSheet.disabled
+
+> StyleSheet.disabled返回一个布尔值，表示该样式表是否处于禁用状态。手动设置disabled属性为true，等同于在<link>元素里面，将这张样式表设为alternate stylesheet，即该样式表将不会生效。
+
+注意，disabled属性只能在 JavaScript 脚本中设置，不能在 HTML 语句中设置。
+
+- Stylesheet.href
+
+> Stylesheet.href返回样式表的网址。对于内嵌样式表，该属性返回null。该属性只读
+
+- StyleSheet.media
+
+> StyleSheet.media属性返回一个类似数组的对象（MediaList实例），成员是表示适用媒介的字符串。表示当前样式表是用于屏幕（screen），还是用于打印（print）或手持设备（handheld），或各种媒介都适用（all）。该属性只读，默认值是screen。**screen.MediaList实例的appendMedium方法，用于增加媒介；deleteMedium方法用于删除媒介。**
+
+- StyleSheet.title
+
+> StyleSheet.title属性返回样式表的title属性
+
+- StyleSheet.type
+
+> StyleSheet.type属性返回样式表的type属性，通常是text/css
+
+- StyleSheet.parentStyleSheet
+
+> CSS 的@import命令允许在样式表中加载其他样式表。StyleSheet.parentStyleSheet属性返回包含了当前样式表的那张样式表。如果当前样式表是顶层样式表，则该属性返回null
+
+- StyleSheet.ownerNode
+
+> StyleSheet.ownerNode属性返回StyleSheet对象所在的 DOM 节点，通常是\<link>或\<style>。对于那些由其他样式表引用的样式表，该属性为null
+
+- CSSStyleSheet.cssRules
+
+> CSSStyleSheet.cssRules属性指向一个类似数组的对象（CSSRuleList实例），里面每一个成员就是当前样式表的一条 CSS 规则。使用该规则的cssText属性，可以得到 CSS 规则对应的字符串。
+
+	var sheet = document.querySelector('#styleElement').sheet;
+	
+	sheet.cssRules[0].cssText
+	// "body { background-color: red; margin: 20px; }"
+	
+	sheet.cssRules[1].cssText
+	// "p { line-height: 1.4em; color: blue; }"
+
+- CSSStyleSheet.ownerRule
+
+> 有些样式表是通过@import规则输入的，它的ownerRule属性会返回一个CSSRule实例，代表那行@import规则。如果当前样式表不是通过@import引入的，ownerRule属性返回null
+
+#### 实例方法
+
+- CSSStyleSheet.insertRule()
+
+> CSSStyleSheet.insertRule方法用于在当前样式表的插入一个新的 CSS 规则。该方法可以接受两个参数，第一个参数是表示 CSS 规则的字符串，这里只能有一条规则，否则会报错。第二个参数是该规则在样式表的插入位置（从0开始），该参数可选，默认为0（即默认插在样式表的头部）。注意，如果插入位置大于现有规则的数目，会报错。该方法的返回值是新插入规则的位置序号。
+
+- CSSStyleSheet.deleteRule()
+
+> CSSStyleSheet.deleteRule方法用来在样式表里面移除一条规则，它的参数是该条规则在cssRules对象中的位置。该方法没有返回值。
+
+### CSSRuleList 接口
+
+> CSSRuleList 接口是一个类似数组的对象，表示一组 CSS 规则，成员都是 CSSRule 实例。获取 CSSRuleList 实例，一般是通过StyleSheet.cssRules属性。CSSRuleList 实例里面，每一条规则（CSSRule 实例）可以通过rules.item(index)或者rules[index]拿到。CSS 规则的条数通过rules.length拿到。**注意，添加规则和删除规则不能在 CSSRuleList 实例操作，而要在它的父元素 StyleSheet 实例上，通过StyleSheet.insertRule()和StyleSheet.deleteRule()操作。**
+
+### CSSRule接口
+
+> 一条 CSS 规则包括两个部分：CSS 选择器和样式声明。JavaScript 通过 CSSRule 接口操作 CSS 规则。一般通过 CSSRuleList 接口（StyleSheet.cssRules）获取 CSSRule 实例。
+
+	var myStyleSheet = document.getElementById('myStyle').sheet;
+	var ruleList = myStyleSheet.cssRules;
+	var rule = ruleList[0];
+	rule instanceof CSSRule // true
+
+#### 实例属性
+
+- CSSRule.cssText属性返回当前规则的文本，如果规则是加载（@import）其他样式表，cssText属性返回@import 'url'
+- CSSRule.parentStyleSheet属性返回当前规则所在的样式表对象（StyleSheet 实例），还是使用上面的例子。
+- CSSRule.parentRule属性返回包含当前规则的父规则，如果不存在父规则（即当前规则是顶层规则），则返回null。父规则最常见的情况是，当前规则包含在@media规则代码块之中。
+- CSSRule.type属性返回一个整数值，表示当前规则的类型。最常见的类型有以下几种。
+
+	1. 普通样式规则（CSSStyleRule 实例）
+	3. @import规则
+	4. @media规则（CSSMediaRule 实例）
+	5. @font-face规则
+
+### CSSStyleRule 接口
+
+> 如果一条 CSS 规则是普通的样式规则（不含特殊的 CSS 命令），那么除了 CSSRule 接口，它还部署了 CSSStyleRule 接口,它有下面两个属性
+
+- CSSStyleRule.selectorText属性返回当前规则的选择器。
+- CSSStyleRule.style属性返回一个对象（CSSStyleDeclaration 实例），代表当前规则的样式声明，也就是选择器后面的大括号里面的部分。
+
+### CSSMediaRule 接口
+
+> 如果一条 CSS 规则是@media代码块，那么它除了 CSSRule 接口，还部署了 CSSMediaRule 接口。该接口主要提供media属性和conditionText属性。前者返回代表@media规则的一个对象（MediaList 实例），后者返回@media规则的生效条件
+
+### window.matchMedia()
+
+> window.matchMedia方法用来将 CSS 的MediaQuery条件语句，转换成一个 MediaQueryList 实例。**注意，如果参数不是有效的MediaQuery条件语句，window.matchMedia不会报错，依然返回一个 MediaQueryList 实例。**
+
+### MediaQueryList 接口
+
+##### 三个属性
+
+- MediaQueryList.media属性返回一个字符串，表示对应的 MediaQuery 条件语句
+- MediaQueryList.matches属性返回一个布尔值，表示当前页面是否符合指定的 MediaQuery 条件语句
+- MediaQueryList.onchange，如果 MediaQuery 条件语句的适配环境发生变化，会触发change事件。MediaQueryList.onchange属性用来指定change事件的监听函数。该函数的参数是change事件对象（MediaQueryListEvent 实例），该对象与 MediaQueryList 实例类似，也有media和matches属性
+
+##### 两个方法
+
+> MediaQueryList.addListener()和MediaQueryList.removeListener()，用来为change事件添加或撤销监听函数
+
+## 2.0[Mutation Observer API](https://wangdoc.com/javascript/dom/mutationobserver.html)
+
+###### Mutation Observer API 用来监视 DOM 变动。DOM 的任何变动，比如节点的增减、属性的变动、文本内容的变动，这个 API 都可以得到通知。
+
+###### 概念上，它很接近事件，可以理解为 DOM 发生变动就会触发 Mutation Observer 事件。但是，它与事件有一个本质不同：事件是同步触发，也就是说，DOM 的变动立刻会触发相应的事件；Mutation Observer 则是异步触发，DOM 的变动并不会马上触发，而是要等到当前所有 DOM 操作都结束才触发。
+
+###### 这样设计是为了应付 DOM 变动频繁的特点。举例来说，如果文档中连续插入1000个<p>元素，就会连续触发1000个插入事件，执行每个事件的回调函数，这很可能造成浏览器的卡顿；而 Mutation Observer 完全不同，只在1000个段落都插入结束后才会触发，而且只触发一次。
+
+###### Mutation Observer 有以下特点。
+
+- 它等待所有脚本任务完成后，才会运行（即异步触发方式）。
+- 它把 DOM 变动记录封装成一个数组进行处理，而不是一条条个别处理 DOM 变动。
+- 它既可以观察 DOM 的所有类型变动，也可以指定只观察某一类变动。
+
+## 2.1事件
+
+### EventTarget
+
+> DOM 的事件操作（监听和触发），都定义在EventTarget接口。所有节点对象都部署了这个接口，其他一些需要事件通信的浏览器内置对象（比如，XMLHttpRequest、AudioNode、AudioContext）也部署了这个接口。该接口主要提供三个实例方法。
+
+- addEventListener：绑定事件的监听函数,EventTarget.addEventListener()用于在当前节点或对象上，定义一个特定事件的监听函数。一旦这个事件发生，就会执行监听函数。该方法没有返回值。该方法接受三个参数。
+
+	- type：事件名称，大小写敏感。
+	- listener：监听函数。事件发生时，会调用该监听函数。
+	- useCapture：布尔值，表示监听函数是否在捕获阶段（capture）触发（参见后文《事件的传播》部分），默认为false（监听函数只在冒泡阶段被触发）。该参数可选
+- removeEventListener：移除事件的监听函数, removeEventListener方法的参数，与addEventListener方法完全一致
+- dispatchEvent：触发事件, EventTarget.dispatchEvent方法在当前节点上触发指定事件，从而触发监听函数的执行。该方法返回一个布尔值，只要有一个监听函数调用了Event.preventDefault()，则返回值为false，否则为true。
+
+### 事件模型
+
+> JavaScript 有三种方法，可以为事件绑定监听函数。
+
+- HTML 语言允许在元素的属性中，直接定义某些事件的监听代码, 通过HTML 的 on- 属性。使用这个方法指定的监听代码，只会在冒泡阶段触发
+- 元素节点对象的事件属性，同样可以指定监听函数。使用这个方法指定的监听函数，也是只会在冒泡阶段触发。
+
+		window.onload = doSomething;
+		
+		div.onclick = function (event) {
+		  console.log('触发事件');
+		};
+- EventTarget.addEventListener()
+
+##### 上面三种方法，第一种“HTML 的 on- 属性”，违反了 HTML 与 JavaScript 代码相分离的原则，将两者写在一起，不利于代码分工，因此不推荐使用。
+
+##### 第二种“元素节点的事件属性”的缺点在于，同一个事件只能定义一个监听函数，也就是说，如果定义两次onclick属性，后一次定义会覆盖前一次。因此，也不推荐使用。
+
+##### 第三种EventTarget.addEventListener是推荐的指定监听函数的方法。它有如下优点：
+
+1. 同一个事件可以添加多个监听函数。
+1. 能够指定在哪个阶段（捕获阶段还是冒泡阶段）触发监听函数。
+1. 除了 DOM 节点，其他对象（比如window、XMLHttpRequest等）也有这个接口，它等于是整个 JavaScript 统一的监听函数接口。
+
+**注意： 监听函数内部的this指向触发事件的那个元素节点。**
+
+	<button id="btn" onclick="console.log(this.id)">点击</button>
+	//btn
+
+### 事件的传播
+
+1. 第一阶段：从window对象传导到目标节点（上层传到底层），称为“捕获阶段”（capture phase）。
+1. 第二阶段：在目标节点上触发，称为“目标阶段”（target phase）。
+1. 第三阶段：从目标节点传导回window对象（从底层传回上层），称为“冒泡阶段”（bubbling phase）。
+
+###### 由于事件会在冒泡阶段向上传播到父节点，因此可以把子节点的监听函数定义在父节点上，由父节点的监听函数统一处理多个子元素的事件。这种方法叫做事件的代理（delegation）。如果希望事件到某个节点为止，不再传播，可以使用事件对象的stopPropagation方法；如果想要彻底取消该事件，不再触发后面所有click的监听函数，可以使用stopImmediatePropagation方法。
 
 
 
