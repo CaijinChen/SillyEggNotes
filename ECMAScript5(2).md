@@ -57,14 +57,13 @@
 
 ###### 函数内部可以使用new.target属性。如果当前函数是new命令调用，new.target指向当前函数，否则为undefined。使用这个属性，可以判断函数调用的时候，是否使用new命令
 
-- function f() {
--   if (!new.target) {
--     throw new Error('请使用 new 命令调用！');
--   }
--   // ...
-- }
-- 
-- f() // Uncaught Error: 请使用 new 命令调用！
+	function f() {
+	  if (!new.target) {
+	    throw new Error('请使用 new 命令调用！');
+	  }
+	  // ...
+	}
+	f() // Uncaught Error: 请使用 new 命令调用！
     
 ###### Object.create() 创建实例对象
 
@@ -352,7 +351,8 @@
 
 - Document：整个文档树的顶层节点
 - DocumentType：doctype标签（比如<!DOCTYPE html>）
-- Element：网页的各种HTML标签（比如\<body>、\<a>等）
+- 
+- ：网页的各种HTML标签（比如\<body>、\<a>等）
 - Attribute：网页元素的属性（比如class="right"）
 - Text：标签之间或标签包含的文本
 - Comment：注释
@@ -406,7 +406,8 @@
 	- 克隆一个节点，会拷贝该节点的所有属性，但是会丧失addEventListener方法和on-属性（即node.onclick = fn），添加在这个节点上的事件回调函数。
 	- 该方法返回的节点不在文档之中，即没有任何父节点，必须使用诸如Node.appendChild这样的方法添加到文档之中。
 	- 克隆一个节点之后，DOM 有可能出现两个有相同id属性（即id="xxx"）的网页元素，这时应该修改其中一个元素的id属性。如果原节点有name属性，可能也需要修改。
-- Node.prototype.insertBefore() 将某个节点插入父节点内部的指定位置
+- Node.prototype.
+- insertBefore() 将某个节点插入父节点内部的指定位置
 - Node.prototype.removeChild() 接受一个子节点作为参数，用于从当前节点移除该子节点。返回值是移除的子节点
 - Node.prototype.replaceChild() 用于将一个新的节点，替换当前节点的某一个子节点
 - Node.prototype.contains() 返回一个布尔值，表示参数节点是否满足以下三个条件之一：
@@ -1079,6 +1080,284 @@
 1. 第三阶段：从目标节点传导回window对象（从底层传回上层），称为“冒泡阶段”（bubbling phase）。
 
 ###### 由于事件会在冒泡阶段向上传播到父节点，因此可以把子节点的监听函数定义在父节点上，由父节点的监听函数统一处理多个子元素的事件。这种方法叫做事件的代理（delegation）。如果希望事件到某个节点为止，不再传播，可以使用事件对象的stopPropagation方法；如果想要彻底取消该事件，不再触发后面所有click的监听函数，可以使用stopImmediatePropagation方法。
+
+###### 事件传播的最上层对象是window，接着依次是document，html（document.documentElement）和body（document.body），然后才是一些绑定监听的标签对象。
+
+### 事件的代理
+
+###### 由于事件会在冒泡阶段向上传播到父节点，因此可以把子节点的监听函数定义在父节点上，由父节点的监听函数统一处理多个子元素的事件。这种方法叫做事件的代理（delegation）。
+
+### Event对象
+
+###### 事件发生以后，会产生一个事件对象，作为参数传给监听函数。浏览器原生提供一个Event对象，所有的事件都是这个对象的实例，或者说继承了Event.prototype对象。
+
+###### Event对象本身就是一个构造函数，可以用来生成新的实例
+
+	event = new Event(type, options);
+
+###### Event构造函数接受两个参数。第一个参数type是字符串，表示事件的名称；第二个参数options是一个对象，表示事件对象的配置。该对象主要有下面两个属性。
+
+- bubbles：布尔值，可选，默认为false，表示事件对象是否冒泡。注意，如果不是显式指定bubbles属性为true，生成的事件就只能在“捕获阶段”触发监听函数
+- cancelable：布尔值，可选，默认为false，表示事件是否可以被取消，即能否用Event.preventDefault()取消这个事件。一旦事件被取消，就好像从来没有发生过，不会触发浏览器对该事件的默认行为。
+#
+	var ev = new Event(
+	  'look',
+	  {
+	    'bubbles': true,
+	    'cancelable': false
+	  }
+	);
+	//使用dispatchEvent方法触发该事件
+	document.dispatchEvent(ev);
+
+###### 实例属性
+
+- Event.bubbles属性返回一个布尔值，表示当前事件是否会冒泡。该属性为只读属性，一般用来了解 Event 实例是否可以冒泡。前面说过，除非显式声明，Event构造函数生成的事件，默认是不冒泡的。
+
+- Event.eventPhase属性返回一个整数常量，表示事件目前所处的阶段。该属性只读。
+
+	- 0,事件目前没有发生。
+	- 1,事件目前处于捕获阶段，即处于从祖先节点向目标节点的传播过程中。
+	- 2,事件到达目标节点，即Event.target属性指向的那个节点。
+	- 3,事件处于冒泡阶段，即处于从目标节点向祖先节点的反向传播过程中。
+
+- Event.cancelable属性返回一个布尔值，表示事件是否可以取消。该属性为只读属性，一般用来了解 Event 实例的特性。大多数浏览器的原生事件是可以取消的。比如，取消click事件，点击链接将无效。但是除非显式声明，Event构造函数生成的事件，默认是不可以取消的。当Event.cancelable属性为true时，调用Event.preventDefault()就可以取消这个事件，阻止浏览器对该事件的默认行为。
+
+- Event.cancelBubble属性是一个布尔值，如果设为true，相当于执行Event.stopPropagation()，可以阻止事件的传播。
+
+- Event.defaultPrevented属性返回一个布尔值，表示该事件是否调用过Event.preventDefault方法。该属性只读。
+
+- Event.currentTarget属性返回事件当前所在的节点，即正在执行的监听函数所绑定的那个节点。
+
+- Event.target属性返回原始触发事件的那个节点，即事件最初发生的节点。事件传播过程中，不同节点的监听函数内部的Event.target与Event.currentTarget属性的值是不一样的，前者总是不变的，后者则是指向监听函数所在的那个节点对象。
+
+- Event.type属性返回一个字符串，表示事件类型。事件的类型是在生成事件的时候指定的。该属性只读。
+
+		var evt = new Event('foo');
+		evt.type // "foo"
+- Event.timeStamp属性返回一个毫秒时间戳，表示事件发生的时间。它是相对于网页加载成功开始计算的。
+
+- Event.isTrusted属性返回一个布尔值，表示该事件是否由真实的用户行为产生。比如，用户点击链接会产生一个click事件，该事件是用户产生的；Event构造函数生成的事件，则是脚本产生的。
+
+		var evt = new Event('foo');
+		//此处的Event对象实例是由脚本构造的，所以为false
+		evt.isTrusted // false
+- Event.detail属性只有浏览器的 UI （用户界面）事件才具有。该属性返回一个数值，表示事件的某种信息。具体含义与事件类型相关。比如，对于click和dbclick事件，Event.detail是鼠标按下的次数（1表示单击，2表示双击，3表示三击）；对于鼠标滚轮事件，Event.detail是滚轮正向滚动的距离，负值就是负向滚动的距离，返回值总是3的倍数。
+
+###### 实例方法
+
+- Event.preventDefault方法取消浏览器对当前事件的默认行为。比如点击链接后，浏览器默认会跳转到另一个页面，使用这个方法以后，就不会跳转了；再比如，按一下空格键，页面向下滚动一段距离，使用这个方法以后也不会滚动了。该方法生效的前提是，事件对象的cancelable属性为true，如果为false，调用该方法没有任何效果。注意，该方法只是取消事件对当前元素的默认影响，不会阻止事件的传播。如果要阻止传播，可以使用stopPropagation()或stopImmediatePropagation()方法。
+
+- stopPropagation方法阻止事件在 DOM 中继续传播，防止再触发定义在别的节点上的监听函数，但是不包括在当前节点上其他的事件监听函数。
+
+- Event.stopImmediatePropagation方法阻止同一个事件的其他监听函数被调用，不管监听函数定义在当前节点还是其他节点。也就是说，该方法阻止事件的传播，比Event.stopPropagation()更彻底。
+
+- Event.composedPath()返回一个数组，成员是事件的最底层节点和依次冒泡经过的所有上层节点。
+
+		// HTML 代码如下
+		// <div>
+		//   <p>Hello</p>
+		// </div>
+		var div = document.querySelector('div');
+		var p = document.querySelector('p');
+		
+		div.addEventListener('click', function (e) {
+		  console.log(e.composedPath());
+		}, false);
+		// [p, div, body, html, document, Window]
+
+### 鼠标事件
+
+###### 继承自MouseEvent接口
+
+- click：按下鼠标（通常是按下主按钮）时触发。
+- dblclick：在同一个元素上双击鼠标时触发。
+- mousedown：按下鼠标键时触发。
+- mouseup：释放按下的鼠标键时触发。
+- mousemove：当鼠标在一个节点内部移动时触发。当鼠标持续移动时，该事件会连续触发。为了避免性能问题，建议对该事件的监听函数做一些限定，比如限定一段时间内只能运行一次。
+- mouseenter：鼠标进入一个节点时触发，进入子节点不会触发这个事件
+- mouseover：鼠标进入一个节点时触发，进入子节点会再一次触发这个事件
+- mouseout：鼠标离开一个节点时触发，离开父节点也会触发这个事件
+- mouseleave：鼠标离开一个节点时触发，离开父节点不会触发这个事件
+- contextmenu：按下鼠标右键时（上下文菜单出现前）触发，或者按下“上下文菜单键”时触发。
+- wheel：滚动鼠标的滚轮时触发，该事件继承的是WheelEvent接口。
+
+###### click事件指的是，用户在同一个位置先完成mousedown动作，再完成mouseup动作。因此，触发顺序是，mousedown首先触发，mouseup接着触发，click最后触发。
+
+###### dblclick事件则会在mousedown、mouseup、click之后触发。
+
+###### mouseover事件和mouseenter事件，都是鼠标进入一个节点时触发。两者的区别是，mouseenter事件只触发一次，而只要鼠标在节点内部移动，mouseover事件会在子节点上触发多次。
+
+###### mouseout事件和mouseleave事件，都是鼠标离开一个节点时触发。两者的区别是，在父元素内部离开一个子元素时，mouseleave事件不会触发，而mouseout事件会触发。
+
+### MouseEvent接口
+
+###### 继承自Event接口，浏览器原生提供一个MouseEvent构造函数，用于新建一个MouseEvent实例。
+
+###### MouseEvent构造函数接受两个参数。第一个参数是字符串，表示事件名称；第二个参数是一个事件配置对象，该参数可选。除了Event接口的实例配置属性，该对象可以配置以下属性，所有属性都是可选的。
+
+- screenX：数值，鼠标相对于屏幕的水平位置（单位像素），默认值为0，设置该属性不会移动鼠标。
+- screenY：数值，鼠标相对于屏幕的垂直位置（单位像素），其他与screenX相同。
+- clientX：数值，鼠标相对于程序窗口的水平位置（单位像素），默认值为0，设置该属性不会移动鼠标。
+- clientY：数值，鼠标相对于程序窗口的垂直位置（单位像素），其他与clientX相同。
+- ctrlKey：布尔值，是否同时按下了 Ctrl 键，默认值为false。
+- shiftKey：布尔值，是否同时按下了 Shift 键，默认值为false。
+- altKey：布尔值，是否同时按下 Alt 键，默认值为false。
+- metaKey：布尔值，是否同时按下 Meta 键，默认值为false。
+- button：数值，表示按下了哪一个鼠标按键，默认值为0，表示按下主键（通常是鼠标的左键）或者当前事件没有定义这个属性；1表示按下辅助键（通常是鼠标的中间键），2表示按下次要键（通常是鼠标的右键）。
+- buttons：数值，表示按下了鼠标的哪些键，是一个三个比特位的二进制值，默认为0（没有按下任何键）。1（二进制001）表示按下主键（通常是左键），2（二进制010）表示按下次要键（通常是右键），4（二进制100）表示按下辅助键（通常是中间键）。因此，如果返回3（二进制011）就表示同时按下了左键和右键。
+- relatedTarget：节点对象，表示事件的相关节点，默认为null。mouseenter和mouseover事件时，表示鼠标刚刚离开的那个元素节点；mouseout和mouseleave事件时，表示鼠标正在进入的那个元素节点。
+
+### 实例属性
+
+- MouseEvent.altKey、MouseEvent.ctrlKey、MouseEvent.metaKey、MouseEvent.shiftKey这四个属性都返回一个布尔值，表示事件发生时，是否按下对应的键。它们都是只读属性。
+
+- MouseEvent.button属性返回一个数值，表示事件发生时按下了鼠标的哪个键。该属性只读。
+
+		0：按下主键（通常是左键），或者该事件没有初始化这个属性（比如mousemove事件）。
+		1：按下辅助键（通常是中键或者滚轮键）。
+		2：按下次键（通常是右键）。
+- MouseEvent.buttons属性返回一个三个比特位的值，表示同时按下了哪些键。它用来处理同时按下多个鼠标键的情况。该属性只读。
+
+		1：二进制为001（十进制的1），表示按下左键。
+		2：二进制为010（十进制的2），表示按下右键。
+		4：二进制为100（十进制的4），表示按下中键或滚轮键。
+		//同时按下多个键的时候，每个按下的键对应的比特位都会有值。比如，同时按下左键和右键，会返回3（二进制为011）。
+- MouseEvent.clientX属性返回鼠标位置相对于浏览器窗口左上角的水平坐标（单位像素），MouseEvent.clientY属性返回垂直坐标。这两个属性都是只读属性。
+
+- MouseEvent.movementX属性返回当前位置与上一个mousemove事件之间的水平距离（单位像素）。
+
+- MouseEvent.movementY属性返回当前位置与上一个mousemove事件之间的垂直距离（单位像素）。
+
+- MouseEvent.screenX属性返回鼠标位置相对于屏幕左上角的水平坐标（单位像素），MouseEvent.screenY属性返回垂直坐标。这两个属性都是只读属性。
+
+- MouseEvent.offsetX属性返回鼠标位置与目标节点左侧的padding边缘的水平距离（单位像素），MouseEvent.offsetY属性返回与目标节点上方的padding边缘的垂直距离。这两个属性都是只读属性。
+
+- MouseEvent.pageX属性返回鼠标位置与文档左侧边缘的距离（单位像素），MouseEvent.pageY属性返回与文档上侧边缘的距离（单位像素）。它们的返回值都包括文档不可见的部分。这两个属性都是只读。
+
+- MouseEvent.relatedTarget属性返回事件的相关节点。对于那些没有相关节点的事件，该属性返回null。该属性只读。
+
+	事件名称| target 属性	| relatedTarget 属性
+	:-|:-|:-
+	focusin|	接受焦点的节点|	丧失焦点的节点
+	focusout|	丧失焦点的节点|	接受焦点的节点
+	mouseenter|	将要进入的节点|	将要离开的节点
+	mouseleave|	将要离开的节点|	将要进入的节点
+	mouseout|	将要离开的节点|	将要进入的节点
+	mouseover|	将要进入的节点|	将要离开的节点
+	dragenter|	将要进入的节点|	将要离开的节点
+	dragexit|	将要离开的节点|	将要进入的节点
+
+- MouseEvent.getModifierState方法返回一个布尔值，表示有没有按下特定的功能键。它的参数是一个表示功能键的字符串。
+
+		//此处判断是否按下大写键
+		document.addEventListener('click', function (e) {
+		  console.log(e.getModifierState('CapsLock'));
+		}, false);
+
+### WheelEvent 接口
+
+###### 继承自MouseEvent，浏览器原生提供WheelEvent()构造函数，用来生成WheelEvent实例。
+
+###### WheelEvent()构造函数可以接受两个参数，第一个是字符串，表示事件类型，对于滚轮事件来说，这个值目前只能是wheel。第二个参数是事件的配置对象。该对象的属性除了Event、UIEvent的配置属性以外，还可以接受以下几个属性，所有属性都是可选的。
+
+- deltaX：数值，表示滚轮的水平滚动量，默认值是 0.0。
+- deltaY：数值，表示滚轮的垂直滚动量，默认值是 0.0。
+- deltaZ：数值，表示滚轮的 Z 轴滚动量，默认值是 0.0。
+- deltaMode：数值，表示相关的滚动事件的单位，适用于上面三个属性。0表示滚动单位为像素，1表示单位为行，2表示单位为页，默认为0。
+
+###### WheelEvent事件实例除了具有Event和MouseEvent的实例属性和实例方法，还有一些自己的实例属性，但是没有自己的实例方法。
+
+### 实例属性（均只读）
+
+- WheelEvent.deltaX：数值，表示滚轮的水平滚动量。
+- WheelEvent.deltaY：数值，表示滚轮的垂直滚动量。
+- WheelEvent.deltaZ：数值，表示滚轮的 Z 轴滚动量。
+- WheelEvent.deltaMode：数值，表示上面三个属性的单位，0是像素，1是行，2是页。
+
+### 键盘事件
+
+###### 键盘事件由用户击打键盘触发，主要有keydown、keypress、keyup三个事件，它们都继承了KeyboardEvent接口。
+
+- keydown：按下键盘时触发。
+- keypress：按下有值的键时触发，即按下 Ctrl、Alt、Shift、Meta 这样无值的键，这个事件不会触发。对于有值的键，按下时先触发keydown事件，再触发这个事件。
+- keyup：松开键盘时触发该事件。
+
+###### 如果用户一直按键不松开，就会连续触发键盘事件，触发的顺序如下：
+
+1. keydown
+1. keypress
+1. keydown
+1. keypress
+1. ...（重复以上过程）
+1. keyup
+
+### KeyboardEvent接口
+
+###### KeyboardEvent接口用来描述用户与键盘的互动。这个接口继承了Event接口，并且定义了自己的实例属性和实例方法。
+
+###### 浏览器原生提供KeyboardEvent构造函数，用来新建键盘事件的实例。
+
+###### KeyboardEvent构造函数接受两个参数。第一个参数是字符串，表示事件类型；第二个参数是一个事件配置对象，该参数可选。除了Event接口提供的属性，还可以配置以下字段，它们都是可选。
+
+- key：字符串，当前按下的键，默认为空字符串。
+- code：字符串，表示当前按下的键的字符串形式，默认为空字符串。
+- location：整数，当前按下的键的位置，默认为0。
+- ctrlKey：布尔值，是否按下 Ctrl 键，默认为false。
+- shiftKey：布尔值，是否按下 Shift 键，默认为false。
+- altKey：布尔值，是否按下 Alt 键，默认为false。
+- metaKey：布尔值，是否按下 Meta 键，默认为false。
+- repeat：布尔值，是否重复按键，默认为false。
+
+### 实例属性（只读）
+
+- KeyboardEvent.altKey：是否按下 Alt 键
+- KeyboardEvent.ctrlKey：是否按下 Ctrl 键
+- KeyboardEvent.metaKey：是否按下 meta 键（Mac 系统是一个四瓣的小花，Windows 系统是 windows 键）
+- KeyboardEvent.shiftKey：是否按下 Shift 键
+- KeyboardEvent.code属性返回一个字符串，表示当前按下的键的字符串形式。该属性只读。
+	- 数字键0 9：返回digital0 digital9
+	- 字母键A z：返回KeyA KeyZ
+	- 功能键F1 F12：返回 F1 F12
+	- 方向键：返回ArrowDown、ArrowUp、ArrowLeft、ArrowRight
+	- Alt 键：返回AltLeft或AltRight
+	- Shift 键：返回ShiftLeft或ShiftRight
+	- Ctrl 键：返回ControLeft或ControlRight
+	- [其他键位](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code#Code_values)
+- KeyboardEvent.key属性返回一个字符串，表示按下的键名。该属性只读。如果按下的键代表可打印字符，则返回这个字符，比如数字、字母。如果按下的键代表不可打印的特殊字符，则返回预定义的键值，比如 Backspace，Tab，Enter，Shift，Control，Alt，CapsLock，Esc，Spacebar，PageUp，PageDown，End，Home，Left，Right，Up，Down，PrintScreen，Insert，Del，Win，F1～F12，NumLock，Scroll 等。如果同时按下一个控制键和一个符号键，则返回符号键的键名。比如，按下 Ctrl + a，则返回a；按下 Shift + a，则返回大写的A。如果无法识别键名，返回字符串Unidentified。
+- KeyboardEvent.location属性返回一个整数，表示按下的键处在键盘的哪一个区域。它可能取以下值。
+	- 0：处在键盘的主区域，或者无法判断处于哪一个区域。
+	- 1：处在键盘的左侧，只适用那些有两个位置的键（比如 Ctrl 和 Shift 键）。
+	- 2：处在键盘的右侧，只适用那些有两个位置的键（比如 Ctrl 和 Shift 键）。
+	- 3：处在数字小键盘。
+- KeyboardEvent.repeat返回一个布尔值，代表该键是否被按着不放，以便判断是否重复这个键，即浏览器会持续触发keydown和keypress事件，直到用户松开手为止。
+
+### 实例方法
+
+- KeyboardEvent.getModifierState()方法返回一个布尔值，表示是否按下或激活指定的功能键。
+	- Alt：Alt 键
+	- CapsLock：大写锁定键
+	- Control：Ctrl 键
+	- Meta：Meta 键
+	- NumLock：数字键盘开关键
+	- Shift：Shift 键
+
+### 进度事件
+
+###### 进度事件用来描述资源加载的进度，主要由 AJAX 请求、\<img>、\<audio>、\<video>、\<style>、\<link>等外部资源的加载触发，继承了ProgressEvent接口。注意，除了资源下载，文件上传也存在这些事件。
+
+- abort：外部资源中止加载时（比如用户取消）触发。如果发生错误导致中止，不会触发该事件。
+- error：由于错误导致外部资源无法加载时触发。
+- load：外部资源加载成功时触发。
+- loadstart：外部资源开始加载时触发。
+- loadend：外部资源停止加载时触发，发生顺序排在error、abort、load等事件的后面。
+- progress：外部资源加载过程中不断触发。
+- timeout：加载超时时触发。
+
+
+
+
+
 
 
 

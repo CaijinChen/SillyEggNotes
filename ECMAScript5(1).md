@@ -56,7 +56,7 @@
 
 ## 2.1.2typeof
 
-###### 数值、字符串、布尔值、未声明或未定义、函数、对象、null数组分别返回number、string、boolean、undefined、function、object、object、object
+###### 数值、字符串、布尔值、未声明或未定义、函数、对象、null、数组分别返回number、string、boolean、undefined、function、object、object、object
 
 *均以字符串形式返回，如："string"，"function"*
 
