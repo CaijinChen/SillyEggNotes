@@ -25,9 +25,11 @@ DI能够让相互协作的软件组件保持松散耦合
 设值注入（使用get/set方法）、构造注入（作为构造函数的参数注入）
 
 - 基于xml配置
-![](https://i.imgur.com/hCvxOQK.png)
+
+	![](https://i.imgur.com/hCvxOQK.png)
 - 基于Java配置（通过编写配置类实现）
-![](https://i.imgur.com/BfClLf1.png)
+
+	![](https://i.imgur.com/BfClLf1.png)
 - 基于注解
 
 Spring通过应用上下文（Application Context）装载bean的定义并把它们组装起来。Spring应用上下文全权负责对象的创建和组装。Spring自带了多种应用上下文的实现，它们之间主要的区别仅仅在于如何加载配置。
@@ -47,8 +49,9 @@ AOP能够使这些服务模块化，并以声明的方式将它们应用到它�
 
 5.spring容器
 
-在Spring应用中，对象由Spring容器创建和装配，并存在于容器之中
 ![](https://i.imgur.com/Usj6rsP.png)
+
+在Spring应用中，对象由Spring容器创建和装配，并存在于容器之中
 
 容器是Spring框架的核心。Spring容器使用DI管理构成应用的组件，它会创建相互协作的组件之间的关联。毫无疑问，这些对象更简单干净，更易于理解，更易于重用并且更易于进行单元测试。
 
@@ -86,6 +89,7 @@ bean的生命周期
 10. 如果bean实现了DisposableBean接口，Spring将调用它的destroy()接口方法。同样，如果bean使用destroy-method声明了销毁方法，该方法也会被调用。
 
 6.spring模块
+
 ![](https://i.imgur.com/3LMBbPO.png)
 
 spring核心容器

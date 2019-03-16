@@ -1,5 +1,5 @@
 # Java知识点补充
-###### 总结自java核心技术卷1/2
+###### 总结自java核心技术卷1
 ---
 ###### 1.代码点与代码单元
 编码字符集（Coded Character Set）：Unicode就是编码字符集的一种，它所做的就是将一个字符集合映射到一个整数集合。
@@ -528,5 +528,394 @@ logger.setLevel(Level.FINE)
 
 Class类是泛型的，例如String.class实际上是Class<String>类的对象（事实上，是唯一的对象）
 
+###### 32.集合
 
+集合框架：接口与实现分离
+
+集合类的基本接口：Collection，它有两个基本方法
+
+	public interface Collection<E>
+	{
+		boolean add(E element);
+		//用于返回实现了Iterator接口的对象，可以使用这个迭代器对象访问集合中的元素
+		Iterator<E> iterator();
+		...
+	}
+
+Iterator接口
+
+	public interface Iterator<E>{
+		E next();
+		boolean hasNext();
+		//remove方法会删除上次调用next方法时返回的元素
+		void remove();
+	}
+	
+	//常见用法
+	Collection<String> c = ...
+	Iterator<String> iter = c.iterator();
+	while(iter.hasNext()){
+		String element = iter.next();
+		...
+	}
+
+	//Java5后可以使用foreach取代上面的写法
+	for(String element : c){
+		...
+	}
+
+**注意：实际上，foreach能够和任何实现了Iterator接口的对象一起工作，这个接口只包含一个方法： `Iterator<E> iterator();`Collection接口继承了Iterator接口**
+
+![](https://i.imgur.com/80mtVst.png)
+
+可见，除了Map，其他的集合类均实现了Collection接口
+
+这里介绍一些不常见的集合类
+
+集合类型|描述
+:-|:-
+ArrayDeque|用循环数组实现的双端序列
+HashSet|没有重复元素的无序集合
+TreeSet|一种有序集（红黑树）
+EnumSet|包含枚举类型的集合
+LinkedHashSet|可以记住元素插入次序的集
+PriorityQueue|允许高效删除最小元素的集合
+HashMap|键值关联的数据结构
+TreeMap|键值有序排列的映射表（红黑树）
+EnumMap|键值属于枚举类型的映射表
+LinkedHashMap|可以记住键值添加次序的映射表
+WeakHashMap|其值无用武之地后可以被垃圾回收器回收的映射表
+IdentityHashMap|用“==”而不是equals比较键值的映射表
+
+Vector类所有方法都是同步的，可以由两个线程安全地访问一个Vector对象，但是效率比较低。ArrayList方法不是同步的所有线程不安全，但效率较高
+
+###### 33.多线程
+
+并发：伪并行，CPU在一段时间按照调度算法不停地切换执行不同的程序，造成多个程序并行运行的假象
+
+并行：多个CPU分别执行不同的任务，此时CPU不用去切换进程上下文，常见于多核CPU以及多处理器的情况下
+
+多进程与多线程：本是上每个进程拥有自己的一整套变量，而线程则共享数据。线程间通信相比进程间通信效率要更高、更简易。在一些操作系统中，创建线程的开销相比创建进程的开销要小得多。
+
+线程实现：
+
+1.继承Runnable接口：
+
+	public interface Runable{
+		void run()
+	}
+#
+	class Run implements Runnable{
+
+	    @Override
+	    public void run() {
+	        System.out.println("3秒后我会输出一些东西");
+	        try{
+	            Thread.sleep(3000);
+	        }catch(InterruptedException e){
+	            e.printStackTrace();
+	            Logger.getGlobal().info("线程中断");
+	        }
+	        System.out.println("这是我要输出的东西");
+	    }
+	}
+
+	Runnable run = new Run();
+	//由Runable创建Thread对象
+    Thread t = new Thread(run);
+	//启动线程
+    t.start();
+
+	//结果：
+	3秒后我会输出一些东西
+	这是我要输出的东西
+	Process finished with exit code 0
+
+2.继承Thread类：
+
+这种方法已不再推荐，应该从运行机制上减少需要并行运行的任务数量，如果有很多任务，可以考虑建立线程池来处理
+
+	class Run extends Thread{
+
+	    @Override
+	    public void run() {
+	        super.run();
+	        System.out.println("3秒后我会输出一些东西");
+	        try{
+	            Thread.sleep(3000);
+	        }catch(InterruptedException e){
+	            e.printStackTrace();
+	            Logger.getGlobal().info("线程中断");
+	        }
+	        System.out.println("这是我要输出的东西");
+	    }
+	}
+
+	//创建Run对象
+    Thread t = new Run();
+	//启动线程
+    t.start();
+
+	//结果：
+	3秒后我会输出一些东西
+	这是我要输出的东西
+	Process finished with exit code 0
+
+**注意：不要调用Thread或Runable对象的run方法。直接调用run方法只会执行同一个线程中的任务，而不会启动新线程，应该调用start方法**
+
+线程中断
+
+当线程的run方法执行方法体中的最后一句语句、或由return语句返回或者在方法中出现了没有捕获的异常，线程将终止
+
+interrupt方法可以用来请求终止进程，当对一个线程调用interrupt，则线程对应的中断状态会被置位。
+
+currentThread()返回当前执行线程的Thread对象
+
+interrupted()它会测试当前线程是否被中断，调用它还会重置中断状态为false，即不中断
+
+线程状态
+
+- New
+- Runable
+- Blocked
+- Waiting
+- Timed waiting（计时等待）
+- Terminated（被终止）
+
+![](https://i.imgur.com/xJK5I7q.png)
+
+在多处理器的机器中，每一个处理器运行一个线程，当线程数多于处理器的数量时，仍旧采用时间片轮转的机制
+
+线程终止：
+
+- 因为run方法正常退出而自然死亡 
+- 因为一个没有捕获的异常而终止
+
+一些方法：
+
+- join()等待终止指定的线程
+- getState()获取当前状态
+
+线程属性
+
+每个线程都有一个优先级，一个线程会继承它的父线程的优先级。
+
+MIN_PRIORITY(1) --->  MAX_PRIORITY(10)
+
+NORM_PRIORITY(5) //默认线程优先级
+
+yield()方法导致当前线程处于让步状态，这是一个静态方法，如果有其他优先级高于或等于当前线程的线程存在，则它们会被调度。
+
+Java的线程分为守护线程和用户线程
+
+守护线程
+
+setDaemon(true)方法设置一个线程成为守护线程。守护线程是为了给其他线程服务而存在的。若要设置则这一方法必须在线程启动之前调用。当用户线程运行完毕，只剩下守护线程时，JVM退出。
+
+	public class Test08 {
+	    public static void main(String[] args) {
+	        Thread t1 = new Thread(new Runnable() {
+	            @Override
+	            public void run() {
+	                try{
+	                    while(true){
+	                        Thread.sleep(500);
+	                        System.out.println(">>> i'm daemon");
+	                    }
+	                }catch(InterruptedException e){
+	                    e.printStackTrace();
+	                }
+	            }
+	        });
+	        t1.setDaemon(true);
+	        t1.start();
+	        for(int i = 0; i < 3; i ++){
+	
+	            new Thread(new Runnable() {
+	                @Override
+	                public void run() {
+	                    for(int i = 0; i < 3; i++){
+	                        try{
+	                            Thread.sleep(1000);
+	                        }catch(InterruptedException e){
+	                            Logger.getGlobal().info("Interrupt accident");
+	                        }
+	                        System.out.println("This is a son thread");
+	                    }
+	                }
+	            }).start();
+	        }
+	    }
+	}
+	//运行结果
+	>>> i'm daemon
+	>>> i'm daemon
+	This is a son thread
+	This is a son thread
+	This is a son thread
+	>>> i'm daemon
+	This is a son thread
+	This is a son thread
+	>>> i'm daemon
+	This is a son thread
+	>>> i'm daemon
+	This is a son thread
+	This is a son thread
+	This is a son thread
+	>>> i'm daemon
+	Process finished with exit code 0
+
+线程的run方法不能抛出任何被检测的异常。但是，不需要任何catch语句处理可以被传播的异常。相反就在线程死亡之前，异常会被传送到一个用于未捕获异常的处理器。
+
+处理器需要实现Thread.UncaughtExceptionHandler接口，它只有一个方法：`void uncaughtException(Thread t, Throwable e)`。可以使用setUncaughtExceptionHandler方法为任何线程安装一个处理器。也可以使用Thread类的静态方法setDefaultUncaughtExceptionHandler为所有线程安装一个默认的处理器。替换处理器可以使用日志API发送未捕获异常到日志文件中。如果不安装默认的处理器，默认的处理器为空。
+
+线程同步
+
+1.synchronized关键字
+
+    public synchronized void method(){
+
+        while(condition...){
+            wait();
+        }
+        ...
+        notifyAll();
+    }
+	//同步静态方法 synchronized(Class)同步类
+	public static synchronized void method(){}
+	//同步普通方法 synchronized(this)同步对象
+	public synchronized void method(){}
+	//同步代码块 synchronized(xxx)同步xxx
+	synchronized(xxx) {
+            
+    }
+
+notifyAll 解除那些在该对象锁上调用wait方法的线程的阻塞状态
+notify 随机选择一个在该对象上调用wait方法的线程，解除其阻塞状态
+wait 让线程进入等待状态
+wait(long)、wait(long, int) 导致线程进入等待状态直到它被通知或经过指定的时间
+
+2.ReentrantLock类(实现了Lock接口)
+
+ReentrantLock 构建一个可以被用来保护临界区的可重入锁
+ReentrantLock(boolean fair) 构建一个带有公平策略的锁，公平锁偏爱等待时间最长的线程，但此锁会降低性能
+
+	ReentrantLock lock = new ReentrantLock();
+	lock.lock();
+	try{
+		...
+	}finally{
+		//把解锁操作置于finally子句中很重要，如果在临界区的代码抛出异常，锁必须释放
+		lock.unlock();
+	}
+
+3.条件变量
+
+条件变量适用于已获得锁但是线程继续执行的条件不满足的时候，线程选择先行释放锁以供其他线程使用的情况，此时线程会被阻塞。
+
+一个锁对象可以有一个或多个相关的条件对象。
+
+	class Bank{
+
+		...
+	    private Lock bankLock = new ReentrantLock();
+	    private Condition condition;
+	
+	    public Bank(int n, double initialBalance){
+	        ...
+	        condition = bankLock.newCondition();
+	    }
+	
+	    public void transfer(int from, int to, double amount) throws InterruptedException{
+	        bankLock.lock();
+	        try{
+	            while(accounts[from] < amount){
+					//此时线程阻塞，锁被释放，线程进入该条件的等待集，锁可用时线程仍不能马上解除阻塞，它会一直阻塞直到另一个线程调用同一条件上的signalAll方法
+	                condition.await();
+	            }
+	            ...
+				//重新激活等待的所有线程
+	            condition.signalAll();
+	        }finally {
+	            bankLock.unlock();
+	        }
+	   }
+
+await() 将线程放到条件的等待集中
+signalAll() 解除该条件的等待集中所有线程的阻塞状态
+signal() 从等待集中随机选择一个线程解除其阻塞状态
+
+锁和条件
+
+- 锁用来保护代码片段，任何时刻只能有一个线程执行被保护的代码片段
+- 锁可以管理试图进入被保护代码段的线程
+- 锁可以拥有一个或多个条件对象
+- 每个条件对象管理那些已经进入被保护代码段但还不能运行的线程
+
+volatile 修饰的成员变量在每次被线程访问时，都强制从共享内存中重新读取该成员变量的值。而且，当成员变量发生变化时，会强制线程将变化值回写到共享内存。这样在任何时刻，两个不同的线程总是看到某个成员变量的同一个值。
+
+声明final属性达到变量的共享
+
+线程局部变量
+
+读写锁
+
+阻塞队列
+
+ArrayBlockingQueue
+LinkedBlokingQueue
+LinkedBlokingDeque
+DelayQueue
+PriorityBlockingQueue
+BlockingQueue
+BlockingDeque
+
+###### 34.线程安全的集合类
+
+ConcurrentHashMap
+ConcurrentSkipListMap
+ConcurrentSkipListSet
+ConcurrentLinkedQueue
+
+###### 35.Callable Future
+
+Runable封装一个异步运行的任务，它没有参数也没有返回值
+
+Callable与Runable类似，但是有返回值，Callable接口是一个参数化的类型，只有一个call方法
+
+	public interface Callable{
+		V call() throws Exception();
+	}
+
+类型参数是返回值的类型，比如Callable<Integer>则返回值类型需要是Integer
+
+Future保存异步计算的结果，可以启动一个计算，将Future对象交给某个线程，等到对象的所有者在计算完成好后就可以获得结果
+
+	public interface Future<V>{
+		//第一个get方法的调用被阻塞，直到计算完成
+		V get() throws ...;
+		//第二个get方法调用超时则抛出TimeoutException异常
+		V get(long timeout, TimeUnit unit) throws ...;
+		//取消计算（mayInterrupt为true时）
+		void cancel(boolean mayInterrupt);
+		boolean isCancelled();
+		boolean isDone;
+	}
+
+FutureTask包装器是一种非常便利的机制，可将Callable转换成Future和Runnable，它同时实现二者的接口
+	
+	Callable<Integer> myComputation = ...;
+	FutureTask<Integer> task = new FutureTask<Integer>(myComputation);
+	Thread t = new Thread(task);
+	t.start();
+	...
+	Integer result = task.get();
+
+线程池
+
+同步器
+
+java.util.concurrent
+
+java并发编程
 
